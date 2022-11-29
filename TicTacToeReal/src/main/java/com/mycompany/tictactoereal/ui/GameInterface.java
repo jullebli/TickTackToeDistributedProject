@@ -1,7 +1,8 @@
 package com.mycompany.tictactoereal.ui;
 
 import com.mycompany.tictactoereal.gamelogic.GameLogic;
-import java.awt.Color;
+import com.mycompany.tictactoereal.networking.MulticastPublisher;
+import com.mycompany.tictactoereal.networking.MulticastReceiver;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -13,29 +14,27 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.WindowConstants;
-import javax.swing.plaf.basic.BasicTabbedPaneUI.MouseHandler;
 
 public class GameInterface extends JPanel {
 
     private static BufferedImage tile_empty, tile_x, tile_o, tile_tri, tile_star, sidebar, bottombar;
     private static boolean inGame;
+    private static MulticastPublisher publisher;
+    private static MulticastReceiver receiver;
     private static GameLogic gameLogic;
     private static Font font;
 
     public GameInterface() {
 
-        gameLogic = new GameLogic();
-        
+        publisher = new MulticastPublisher();
+        receiver = new MulticastReceiver();
+        gameLogic = new GameLogic(publisher, receiver);
+
         font = new Font("Baskerville", Font.PLAIN, 32);
 
         setPreferredSize(new Dimension(900, 750));
@@ -140,14 +139,21 @@ public class GameInterface extends JPanel {
                 int clickY = event.getY() / 20;
                 int i = gameLogic.tileIdAt(clickX, clickY);
                 boolean succeeded;
-                succeeded = gameLogic.placeTile(clickX, clickY, gameLogic.getPlayerSymbol());
-                if (succeeded) {
-                    int won = gameLogic.checkIfGameWon();
-                    if (won != 0) {
-                        System.out.println("Game won " + Math.random());
+                try {
+                    succeeded = gameLogic.placeTileAndMulticast(clickX, clickY, gameLogic.getPlayerSymbol());
 
+                    if (succeeded) {
+                        int won = gameLogic.checkIfGameWon();
+                        if (won != 0) {
+                            System.out.println("Game won " + Math.random());
+
+                        }
                     }
+
+                } catch (IOException ex) {
+                    Logger.getLogger(GameInterface.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
             }
         }
 

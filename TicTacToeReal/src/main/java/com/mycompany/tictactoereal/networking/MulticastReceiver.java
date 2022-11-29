@@ -30,7 +30,7 @@ public class MulticastReceiver extends Thread {
         socket.leaveGroup(group);
         socket.close();
         } catch (Exception e) {
-            System.out.println("EXCEPTION" + e);           
+            System.out.println("EXCEPTION in MulticastReceiver" + e);
         }
     }
 }

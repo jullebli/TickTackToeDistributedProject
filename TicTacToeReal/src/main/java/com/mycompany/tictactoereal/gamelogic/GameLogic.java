@@ -1,18 +1,27 @@
 package com.mycompany.tictactoereal.gamelogic;
 
+import com.mycompany.tictactoereal.networking.MulticastPublisher;
+import com.mycompany.tictactoereal.networking.MulticastReceiver;
+import java.io.IOException;
+
 public class GameLogic {
 
+    //somehow needs to know how many players are in the game?
     private int[][] gameBoard;
     private int playerSymbol = 1;
     private int symbolInTurn = 1;
+    private MulticastPublisher publisher;
+    private MulticastReceiver receiver;
 
     // 0 - empty
     // 1 - x
     // 2 - o
     // 3 - triangle
     // 4 - star
-    public GameLogic() {
+    public GameLogic(MulticastPublisher publisher, MulticastReceiver receiver) {
         this.gameBoard = new int[30][30];
+        this.receiver = receiver;
+        this.publisher = publisher;
     }
 
     public int[][] getGameBoard() {
@@ -26,13 +35,31 @@ public class GameLogic {
         return 0;
     }
 
-    public boolean placeTile(int x, int y, int tileId) {
+    public boolean placeTileAndMulticast(int x, int y, int tileId) throws IOException {
         if (symbolInTurn != playerSymbol) {
             return false;
         }
         if (x >= 0 && x < 30 && y >= 0 && y < 30) {
             gameBoard[x][y] = tileId;
             symbolInTurn++;
+            //somehow needs to know how many players are in the game
+            if (symbolInTurn == 5) {
+                symbolInTurn = 1;
+            }
+            publisher.multicast("ID" + tileId);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean placeTile(int x, int y, int tileId) throws IOException {
+        //if (symbolInTurn != playerSymbol) {
+        //    return false;
+        //}  Should use this function only when placing others symbols
+        if (x >= 0 && x < 30 && y >= 0 && y < 30) {
+            gameBoard[x][y] = tileId;
+            symbolInTurn++;
+            //somehow needs to know how many players are in the game
             if (symbolInTurn == 5) {
                 symbolInTurn = 1;
             }
