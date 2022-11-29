@@ -1,6 +1,7 @@
 
 package com.mycompany.tictactoereal.networking;
 
+import com.mycompany.tictactoereal.gamelogic.GameLogic;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -12,6 +13,11 @@ import java.net.MulticastSocket;
 public class MulticastReceiver extends Thread {
     protected MulticastSocket socket = null;
     protected byte[] buf = new byte[256];
+    private GameLogic gameLogic;
+
+    public MulticastReceiver(GameLogic gamelogic) {
+        this.gameLogic = gamelogic;
+    }
 
     public void run() {
         try {
@@ -25,6 +31,13 @@ public class MulticastReceiver extends Thread {
               packet.getData(), 0, packet.getLength());
             if ("end".equals(received)) {
                 break;
+            } else {
+                //here separate the message wchich is "x,y,tileId" into parts
+                String[] parts = received.split(",");
+                int x = Integer.parseInt(parts[0]);
+                int y = Integer.parseInt(parts[1]);
+                int tileId = Integer.parseInt(parts[2]);
+                gameLogic.placeTile(x, y, tileId);
             }
         }
         socket.leaveGroup(group);

@@ -1,7 +1,6 @@
 package com.mycompany.tictactoereal.gamelogic;
 
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
-import com.mycompany.tictactoereal.networking.MulticastReceiver;
 import java.io.IOException;
 
 public class GameLogic {
@@ -11,16 +10,15 @@ public class GameLogic {
     private int playerSymbol = 1;
     private int symbolInTurn = 1;
     private MulticastPublisher publisher;
-    private MulticastReceiver receiver;
+    private String multicastMessage;
 
     // 0 - empty
     // 1 - x
     // 2 - o
     // 3 - triangle
     // 4 - star
-    public GameLogic(MulticastPublisher publisher, MulticastReceiver receiver) {
+    public GameLogic(MulticastPublisher publisher) {
         this.gameBoard = new int[30][30];
-        this.receiver = receiver;
         this.publisher = publisher;
     }
 
@@ -46,7 +44,8 @@ public class GameLogic {
             if (symbolInTurn == 5) {
                 symbolInTurn = 1;
             }
-            publisher.multicast("ID" + tileId);
+            multicastMessage = String.valueOf(x + "," + y + "," + tileId);
+            publisher.multicast(multicastMessage);
             return true;
         }
         return false;
