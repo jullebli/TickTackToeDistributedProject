@@ -37,7 +37,7 @@ public class MulticastReceiver extends Thread {
                 int x = Integer.parseInt(parts[0]);
                 int y = Integer.parseInt(parts[1]);
                 int tileId = Integer.parseInt(parts[2]);
-                gameLogic.placeTile(x, y, tileId);
+                gameLogic.placeTile(x, y, tileId,false);
             }
         }
         socket.leaveGroup(group);

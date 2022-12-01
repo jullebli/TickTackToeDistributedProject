@@ -33,34 +33,19 @@ public class GameLogic {
         return 0;
     }
 
-    public boolean placeTileAndMulticast(int x, int y, int tileId) throws IOException {
-        if (symbolInTurn != playerSymbol) {
+    public boolean placeTile(int x, int y, int tileId, boolean isMulticasting) throws IOException {
+        if (isMulticasting && (symbolInTurn != playerSymbol || gameBoard[x][y] != 0)) {
             return false;
         }
         if (x >= 0 && x < 30 && y >= 0 && y < 30) {
             gameBoard[x][y] = tileId;
-            symbolInTurn++;
-            //somehow needs to know how many players are in the game
-            if (symbolInTurn == 5) {
-                symbolInTurn = 1;
-            }
-            multicastMessage = String.valueOf(x + "," + y + "," + tileId);
-            publisher.multicast(multicastMessage);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean placeTile(int x, int y, int tileId) throws IOException {
-        //if (symbolInTurn != playerSymbol) {
-        //    return false;
-        //}  Should use this function only when placing others symbols
-        if (x >= 0 && x < 30 && y >= 0 && y < 30) {
-            gameBoard[x][y] = tileId;
-            symbolInTurn++;
-            //somehow needs to know how many players are in the game
-            if (symbolInTurn == 5) {
-                symbolInTurn = 1;
+            if (isMulticasting) {
+                symbolInTurn++;
+                if (symbolInTurn == 5) {
+                    symbolInTurn = 1;
+                }
+                multicastMessage = String.valueOf(x + "," + y + "," + tileId);
+                publisher.multicast(multicastMessage);
             }
             return true;
         }
