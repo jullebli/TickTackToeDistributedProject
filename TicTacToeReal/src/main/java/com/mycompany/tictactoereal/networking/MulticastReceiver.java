@@ -14,15 +14,16 @@ public class MulticastReceiver extends Thread {
     protected MulticastSocket socket = null;
     protected byte[] buf = new byte[256];
     private GameLogic gameLogic;
+    private String address;
 
-    public MulticastReceiver(GameLogic gamelogic) {
+    public MulticastReceiver(GameLogic gamelogic, String address) {
         this.gameLogic = gamelogic;
     }
 
     public void run() {
         try {
         socket = new MulticastSocket(4446);
-        InetAddress group = InetAddress.getByName("230.0.0.0");
+        InetAddress group = InetAddress.getByName(address);
         socket.joinGroup(group);
         while (true) {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -32,11 +33,12 @@ public class MulticastReceiver extends Thread {
             if ("end".equals(received)) {
                 break;
             } else {
-                //here separate the message wchich is "x,y,tileId" into parts
+                //here separate the message which is "x,y,tileId" into parts
                 String[] parts = received.split(",");
                 int x = Integer.parseInt(parts[0]);
                 int y = Integer.parseInt(parts[1]);
                 int tileId = Integer.parseInt(parts[2]);
+                System.out.println(received);
                 gameLogic.placeTile(x, y, tileId);
             }
         }

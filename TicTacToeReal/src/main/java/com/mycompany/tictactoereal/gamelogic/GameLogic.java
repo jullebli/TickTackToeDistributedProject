@@ -10,7 +10,6 @@ public class GameLogic {
     private int playerSymbol = 1;
     private int symbolInTurn = 1;
     private MulticastPublisher publisher;
-    private String multicastMessage;
 
     // 0 - empty
     // 1 - x
@@ -44,8 +43,6 @@ public class GameLogic {
             if (symbolInTurn == 5) {
                 symbolInTurn = 1;
             }
-            multicastMessage = String.valueOf(x + "," + y + "," + tileId);
-            publisher.multicast(multicastMessage);
             return true;
         }
         return false;

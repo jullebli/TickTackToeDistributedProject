@@ -31,9 +31,9 @@ public class GameInterface extends JPanel {
 
     public GameInterface() {
 
-        publisher = new MulticastPublisher();
+        publisher = new MulticastPublisher("230.0.0.0");
         gameLogic = new GameLogic(publisher);
-        receiver = new MulticastReceiver(gameLogic);
+        receiver = new MulticastReceiver(gameLogic, "230.0.0.0");
         Thread t = new Thread(receiver);
         t.start();
 
@@ -128,7 +128,10 @@ public class GameInterface extends JPanel {
             g.drawString("Current turn: " + inTurnSymbol, 35, 705);
             Font f = new Font("Baskerville", Font.PLAIN, 20);
             g.setFont(f);
-            g.drawString("Multicastmessage", 670, 35);
+            //g.drawString("Multicastmessage", 670, 35);
+            //if (multicastMessage != null) {
+            //    g.drawString(multicastMessage, 670, 35);
+            //}
 
         }
         repaint();

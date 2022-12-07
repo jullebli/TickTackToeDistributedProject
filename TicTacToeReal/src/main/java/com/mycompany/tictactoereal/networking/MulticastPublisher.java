@@ -14,11 +14,16 @@ public class MulticastPublisher {
     private DatagramSocket socket;
     private InetAddress group;
     private byte[] buf;
+    private String address;
+
+    public MulticastPublisher(String address) {
+        this.address = address;
+    }
 
     public void multicast(
       String multicastMessage) throws IOException {
         socket = new DatagramSocket();
-        group = InetAddress.getByName("230.0.0.0");
+        group = InetAddress.getByName(address);
         buf = multicastMessage.getBytes();
 
         DatagramPacket packet 
