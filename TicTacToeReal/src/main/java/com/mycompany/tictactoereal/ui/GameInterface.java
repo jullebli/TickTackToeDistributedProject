@@ -8,6 +8,9 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -36,6 +39,21 @@ public class GameInterface extends JPanel {
         receiver = new MulticastReceiver(gameLogic, "230.0.0.0");
         Thread t = new Thread(receiver);
         t.start();
+        this.setFocusable(true);
+        addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_1) {
+                    gameLogic.setPlayerSymbol(1);
+                } else if (e.getKeyCode() == KeyEvent.VK_2) {
+                    gameLogic.setPlayerSymbol(2);
+                } else if (e.getKeyCode() == KeyEvent.VK_3) {
+                    gameLogic.setPlayerSymbol(3);
+                } else if (e.getKeyCode() == KeyEvent.VK_4) {
+                    gameLogic.setPlayerSymbol(4);
+                }
+
+            }
+        });
 
         font = new Font("Baskerville", Font.PLAIN, 32);
 
@@ -149,7 +167,7 @@ public class GameInterface extends JPanel {
                 int i = gameLogic.tileIdAt(clickX, clickY);
                 boolean succeeded;
                 try {
-                    succeeded = gameLogic.placeTileAndMulticast(clickX, clickY, gameLogic.getPlayerSymbol());
+                    succeeded = gameLogic.placeTile(clickX, clickY, gameLogic.getPlayerSymbol(),true);
 
                     if (succeeded) {
                         int won = gameLogic.checkIfGameWon();
