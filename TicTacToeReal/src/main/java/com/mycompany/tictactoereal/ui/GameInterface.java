@@ -1,41 +1,60 @@
 package com.mycompany.tictactoereal.ui;
 
 import com.mycompany.tictactoereal.gamelogic.GameLogic;
-import java.awt.Color;
+import com.mycompany.tictactoereal.networking.MulticastPublisher;
+import com.mycompany.tictactoereal.networking.MulticastReceiver;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.WindowConstants;
-import javax.swing.plaf.basic.BasicTabbedPaneUI.MouseHandler;
 
 public class GameInterface extends JPanel {
 
     private static BufferedImage tile_empty, tile_x, tile_o, tile_tri, tile_star, sidebar, bottombar;
     private static boolean inGame;
+    private static MulticastPublisher publisher;
+    private static MulticastReceiver receiver;
     private static GameLogic gameLogic;
     private static Font font;
 
     public GameInterface() {
 
-        gameLogic = new GameLogic();
-        
+        publisher = new MulticastPublisher("230.0.0.0");
+        gameLogic = new GameLogic(publisher);
+        receiver = new MulticastReceiver(gameLogic, "230.0.0.0");
+        Thread t = new Thread(receiver);
+        t.start();
+        this.setFocusable(true);
+        addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_1) {
+                    gameLogic.setPlayerSymbol(1);
+                } else if (e.getKeyCode() == KeyEvent.VK_2) {
+                    gameLogic.setPlayerSymbol(2);
+                } else if (e.getKeyCode() == KeyEvent.VK_3) {
+                    gameLogic.setPlayerSymbol(3);
+                } else if (e.getKeyCode() == KeyEvent.VK_4) {
+                    gameLogic.setPlayerSymbol(4);
+                }
+
+            }
+        });
+
         font = new Font("Baskerville", Font.PLAIN, 32);
 
         setPreferredSize(new Dimension(900, 750));
@@ -125,6 +144,13 @@ public class GameInterface extends JPanel {
             }
             g.drawString("Your symbol: " + playerSymbol, 35, 670);
             g.drawString("Current turn: " + inTurnSymbol, 35, 705);
+            Font f = new Font("Baskerville", Font.PLAIN, 20);
+            g.setFont(f);
+            //g.drawString("Multicastmessage", 670, 35);
+            //if (multicastMessage != null) {
+            //    g.drawString(multicastMessage, 670, 35);
+            //}
+
         }
         repaint();
     }
@@ -140,14 +166,21 @@ public class GameInterface extends JPanel {
                 int clickY = event.getY() / 20;
                 int i = gameLogic.tileIdAt(clickX, clickY);
                 boolean succeeded;
-                succeeded = gameLogic.placeTile(clickX, clickY, gameLogic.getPlayerSymbol());
-                if (succeeded) {
-                    int won = gameLogic.checkIfGameWon();
-                    if (won != 0) {
-                        System.out.println("Game won " + Math.random());
+                try {
+                    succeeded = gameLogic.placeTile(clickX, clickY, gameLogic.getPlayerSymbol(),true);
 
+                    if (succeeded) {
+                        int won = gameLogic.checkIfGameWon();
+                        if (won != 0) {
+                            System.out.println("Game won " + Math.random());
+
+                        }
                     }
+
+                } catch (IOException ex) {
+                    Logger.getLogger(GameInterface.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
             }
         }
 

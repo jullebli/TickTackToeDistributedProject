@@ -1,18 +1,24 @@
 package com.mycompany.tictactoereal.gamelogic;
 
+import com.mycompany.tictactoereal.networking.MulticastPublisher;
+import java.io.IOException;
+
 public class GameLogic {
 
+    //somehow needs to know how many players are in the game?
     private int[][] gameBoard;
     private int playerSymbol = 1;
     private int symbolInTurn = 1;
+    private MulticastPublisher publisher;
 
     // 0 - empty
     // 1 - x
     // 2 - o
     // 3 - triangle
     // 4 - star
-    public GameLogic() {
+    public GameLogic(MulticastPublisher publisher) {
         this.gameBoard = new int[30][30];
+        this.publisher = publisher;
     }
 
     public int[][] getGameBoard() {
@@ -26,15 +32,20 @@ public class GameLogic {
         return 0;
     }
 
-    public boolean placeTile(int x, int y, int tileId) {
-        if (symbolInTurn != playerSymbol) {
+    public boolean placeTile(int x, int y, int tileId, boolean isMulticasting) throws IOException {
+        if (isMulticasting && (symbolInTurn != playerSymbol || gameBoard[x][y] != 0)) {
             return false;
         }
         if (x >= 0 && x < 30 && y >= 0 && y < 30) {
             gameBoard[x][y] = tileId;
-            symbolInTurn++;
-            if (symbolInTurn == 5) {
-                symbolInTurn = 1;
+            if (isMulticasting) {
+                String multicastMessage = String.valueOf(x + "," + y + "," + tileId);
+                publisher.multicast(multicastMessage);
+                symbolInTurn++;
+                //somehow needs to know how many players are in the game
+                if (symbolInTurn == 5) {
+                    symbolInTurn = 1;
+                }
             }
             return true;
         }
