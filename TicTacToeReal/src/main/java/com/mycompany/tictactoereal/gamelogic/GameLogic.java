@@ -9,6 +9,8 @@ public class GameLogic {
     private int[][] gameBoard;
     private int playerSymbol = 1;
     private int symbolInTurn = 1;
+    private int playerAmount = 4;
+    private int gameWonBy = 0;
     private MulticastPublisher publisher;
 
     // 0 - empty
@@ -39,28 +41,28 @@ public class GameLogic {
     }
 
     public boolean placeTile(int x, int y, int tileId, boolean isMulticasting) throws IOException {
-        if (isMulticasting && (symbolInTurn != playerSymbol || gameBoard[x][y] != 0)) {
+        if (isMulticasting && (symbolInTurn != playerSymbol || gameBoard[x][y] != 0) || gameWonBy != 0) {
             return false;
         }
         if (x >= 0 && x < 30 && y >= 0 && y < 30) {
-            gameBoard[x][y] = tileId;
             if (isMulticasting) {
                 String multicastMessage = String.valueOf(x + "," + y + "," + tileId);
                 publisher.multicast(multicastMessage);
             }
             if (!isMulticasting) {
+                gameBoard[x][y] = tileId;
                 symbolInTurn++;
-                //somehow needs to know how many players are in the game
-                if (symbolInTurn == 5) {
+                if (symbolInTurn >= playerAmount + 1) {
                     symbolInTurn = 1;
                 }
+                checkIfGameWon();
             }
             return true;
         }
         return false;
     }
 
-    public int checkIfGameWon() {
+    public void checkIfGameWon() {
 
         int neededToWin = 5;
 
@@ -80,7 +82,7 @@ public class GameLogic {
                     } else {
                         currentInRowHor++;
                         if (currentInRowHor == neededToWin) {
-                            return currentSymbolHor;
+                            gameWonBy = currentSymbolHor;
                         }
                     }
 
@@ -95,7 +97,7 @@ public class GameLogic {
                     } else {
                         currentInRowVer++;
                         if (currentInRowVer == neededToWin) {
-                            return currentSymbolVer;
+                            gameWonBy = currentSymbolVer;
                         }
                     }
                 } else {
@@ -129,7 +131,7 @@ public class GameLogic {
                     } else {
                         currentInRowDiag++;
                         if (currentInRowDiag == neededToWin) {
-                            return currentSymbolDiag;
+                            gameWonBy = currentSymbolDiag;
                         }
                     }
                 } else {
@@ -143,7 +145,7 @@ public class GameLogic {
                     } else {
                         currentInRowDiag2++;
                         if (currentInRowDiag2 == neededToWin) {
-                            return currentSymbolDiag2;
+                            gameWonBy = currentSymbolDiag2;
                         }
                     }
                 } else {
@@ -157,7 +159,7 @@ public class GameLogic {
                     } else {
                         currentInRowDiag3++;
                         if (currentInRowDiag3 == neededToWin) {
-                            return currentSymbolDiag3;
+                            gameWonBy = currentSymbolDiag3;
                         }
                     }
                 } else {
@@ -171,7 +173,7 @@ public class GameLogic {
                     } else {
                         currentInRowDiag4++;
                         if (currentInRowDiag4 == neededToWin) {
-                            return currentSymbolDiag4;
+                            gameWonBy = currentSymbolDiag4;
                         }
                     }
                 } else {
@@ -188,8 +190,6 @@ public class GameLogic {
             currentSymbolDiag4 = 0;
             currentInRowDiag4 = 0;
         }
-
-        return 0;
     }
 
     public int getPlayerSymbol() {
@@ -206,6 +206,22 @@ public class GameLogic {
 
     public void setSymbolInTurn(int symbolInTurn) {
         this.symbolInTurn = symbolInTurn;
+    }
+
+    public int getPlayerAmount() {
+        return playerAmount;
+    }
+
+    public void setPlayerAmount(int playerAmount) {
+        this.playerAmount = playerAmount;
+    }
+
+    public int getGameWonBy() {
+        return gameWonBy;
+    }
+
+    public void setGameWonBy(int gameWonBy) {
+        this.gameWonBy = gameWonBy;
     }
 
 }
