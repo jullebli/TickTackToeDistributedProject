@@ -21,6 +21,12 @@ public class GameLogic {
         this.publisher = publisher;
     }
 
+    public GameLogic(MulticastPublisher publisher, int playerSymbol) {
+        this.gameBoard = new int[30][30];
+        this.publisher = publisher;
+        this.playerSymbol = playerSymbol;
+    }
+
     public int[][] getGameBoard() {
         return gameBoard;
     }
@@ -41,6 +47,8 @@ public class GameLogic {
             if (isMulticasting) {
                 String multicastMessage = String.valueOf(x + "," + y + "," + tileId);
                 publisher.multicast(multicastMessage);
+            }
+            if (!isMulticasting) {
                 symbolInTurn++;
                 //somehow needs to know how many players are in the game
                 if (symbolInTurn == 5) {
