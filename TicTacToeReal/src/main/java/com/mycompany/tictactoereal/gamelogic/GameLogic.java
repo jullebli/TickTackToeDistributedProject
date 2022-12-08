@@ -39,6 +39,8 @@ public class GameLogic {
         if (x >= 0 && x < 30 && y >= 0 && y < 30) {
             gameBoard[x][y] = tileId;
             if (isMulticasting) {
+                String multicastMessage = String.valueOf(x + "," + y + "," + tileId);
+                publisher.multicast(multicastMessage);
                 symbolInTurn++;
                 //somehow needs to know how many players are in the game
                 if (symbolInTurn == 5) {

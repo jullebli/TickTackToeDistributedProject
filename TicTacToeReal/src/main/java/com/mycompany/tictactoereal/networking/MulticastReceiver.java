@@ -18,6 +18,7 @@ public class MulticastReceiver extends Thread {
 
     public MulticastReceiver(GameLogic gamelogic, String address) {
         this.gameLogic = gamelogic;
+        this.address = address;
     }
 
     public void run() {
@@ -38,7 +39,7 @@ public class MulticastReceiver extends Thread {
                 int x = Integer.parseInt(parts[0]);
                 int y = Integer.parseInt(parts[1]);
                 int tileId = Integer.parseInt(parts[2]);
-
+                System.out.println("Someone made a move");
                 gameLogic.placeTile(x, y, tileId,false);
             }
         }
