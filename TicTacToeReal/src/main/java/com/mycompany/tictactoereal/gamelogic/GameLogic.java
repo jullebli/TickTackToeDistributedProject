@@ -25,14 +25,14 @@ public class GameLogic {
     public GameLogic(MulticastPublisher publisher) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
-        generateHash();
+        generateUserHash();
     }
 
     public GameLogic(MulticastPublisher publisher, int playerSymbol) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
         this.playerSymbol = playerSymbol;
-        generateHash();
+        generateUserHash();
     }
     
     private void generateUserHash() {
