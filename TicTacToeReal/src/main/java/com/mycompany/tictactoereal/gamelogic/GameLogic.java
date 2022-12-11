@@ -2,6 +2,8 @@ package com.mycompany.tictactoereal.gamelogic;
 
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.Random;
 
 public class GameLogic {
 
@@ -11,6 +13,10 @@ public class GameLogic {
     private int symbolInTurn = 1;
     private MulticastPublisher publisher;
 
+    
+    //Used for temporarily differenciating users, may not be useful later
+    private String userHash;
+    
     // 0 - empty
     // 1 - x
     // 2 - o
@@ -19,14 +25,38 @@ public class GameLogic {
     public GameLogic(MulticastPublisher publisher) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
+        generateHash();
     }
 
     public GameLogic(MulticastPublisher publisher, int playerSymbol) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
         this.playerSymbol = playerSymbol;
+        generateHash();
     }
-
+    
+    private void generateHash() {
+        Random random = new SecureRandom();
+        char[] result = new char[10];
+        char[] characters = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();
+        
+        for (int i = 0; i < result.length; i++) {
+            // picks a random index out of character set > random character
+            int randomCharIndex = random.nextInt(characters.length);
+            result[i] = characters[randomCharIndex];
+        }
+        userHash = new String(result);
+    }
+    
+    
+    public void searchGame() throws IOException {
+        this.publisher.multicast(userHash);
+    }
+    public void searchGame(String adr) throws IOException {
+        this.publisher.multicast(userHash,adr);
+    }
+    
+    
     public int[][] getGameBoard() {
         return gameBoard;
     }

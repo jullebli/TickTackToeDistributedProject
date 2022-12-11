@@ -33,7 +33,13 @@ public class MulticastReceiver extends Thread {
               packet.getData(), 0, packet.getLength());
             if ("end".equals(received)) {
                 break;
-            } else {
+            } else if (received.contains(".")) {
+                // THIS IS PROBABLY AN IP_ADDRESS
+                break;
+            } else if (received.length() == 10 && received.split(",").length == 1) {
+                // THIS IS PROBABLY A USERHASH
+                break;
+            } {
                 //here separate the message which is "x,y,tileId" into parts
                 String[] parts = received.split(",");
                 int x = Integer.parseInt(parts[0]);
