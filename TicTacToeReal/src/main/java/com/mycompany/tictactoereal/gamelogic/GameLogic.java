@@ -35,7 +35,7 @@ public class GameLogic {
         generateHash();
     }
     
-    private void generateHash() {
+    private void generateUserHash() {
         Random random = new SecureRandom();
         char[] result = new char[10];
         char[] characters = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();

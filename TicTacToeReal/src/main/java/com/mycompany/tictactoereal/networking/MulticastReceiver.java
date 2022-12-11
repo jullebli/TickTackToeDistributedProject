@@ -39,7 +39,7 @@ public class MulticastReceiver extends Thread {
             } else if (received.length() == 10 && received.split(",").length == 1) {
                 // THIS IS PROBABLY A USERHASH
                 break;
-            } {
+            } else {
                 //here separate the message which is "x,y,tileId" into parts
                 String[] parts = received.split(",");
                 int x = Integer.parseInt(parts[0]);
