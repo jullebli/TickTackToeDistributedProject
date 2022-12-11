@@ -21,6 +21,7 @@ public class MulticastReceiver extends Thread {
         this.address = address;
     }
 
+    @Override
     public void run() {
         try {
         socket = new MulticastSocket(4446);
@@ -33,12 +34,20 @@ public class MulticastReceiver extends Thread {
               packet.getData(), 0, packet.getLength());
             if ("end".equals(received)) {
                 break;
-            } else if (received.contains(".")) {
+            } else if (received.contains(".")) { // Create a better check later
                 // THIS IS PROBABLY AN IP_ADDRESS
-                break;
+                System.out.println("Switching to " + received);
+                
+                MulticastPublisher pub = this.gameLogic.getPublisher();
+                pub.setAddress(received);
+                this.address = received;
+                
+                group = InetAddress.getByName(address);
+                socket.joinGroup(group);
+                
             } else if (received.length() == 10 && received.split(",").length == 1) {
-                // THIS IS PROBABLY A USERHASH
-                break;
+                // THIS IS PROBABLY A USERHASH, should be ignored
+                continue;
             } else {
                 //here separate the message which is "x,y,tileId" into parts
                 String[] parts = received.split(",");
@@ -55,4 +64,5 @@ public class MulticastReceiver extends Thread {
             System.out.println("EXCEPTION in MulticastReceiver" + e);
         }
     }
+    
 }

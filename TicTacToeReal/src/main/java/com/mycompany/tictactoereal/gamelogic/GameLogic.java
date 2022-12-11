@@ -237,5 +237,9 @@ public class GameLogic {
     public void setSymbolInTurn(int symbolInTurn) {
         this.symbolInTurn = symbolInTurn;
     }
+    
+    public MulticastPublisher getPublisher() {
+        return publisher;
+    }
 
 }
