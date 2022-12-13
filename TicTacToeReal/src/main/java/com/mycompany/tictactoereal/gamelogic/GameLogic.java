@@ -42,8 +42,8 @@ public class GameLogic {
         
         for (int i = 0; i < result.length; i++) {
             // picks a random index out of character set > random character
-            int randomCharIndex = random.nextInt(characters.length);
-            result[i] = characters[randomCharIndex];
+            int randInt = random.nextInt(characters.length);
+            result[i] = characters[randInt];
         }
         userHash = new String(result);
     }
@@ -240,6 +240,10 @@ public class GameLogic {
     
     public MulticastPublisher getPublisher() {
         return publisher;
+    }
+    
+    public String getUserHash(){
+        return this.userHash;
     }
 
 }
