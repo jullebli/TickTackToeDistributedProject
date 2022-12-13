@@ -31,12 +31,14 @@ public class GameInterface extends JPanel {
     private static MulticastReceiver receiver;
     private static GameLogic gameLogic;
     private static Font font;
+    
+    private static final String DEFAULT_ADDRESS = "230.0.0.0";
 
     public GameInterface() {
 
-        publisher = new MulticastPublisher("230.0.0.0");
+        publisher = new MulticastPublisher(DEFAULT_ADDRESS);
         gameLogic = new GameLogic(publisher);
-        receiver = new MulticastReceiver(gameLogic, "230.0.0.0");
+        receiver = new MulticastReceiver(gameLogic, DEFAULT_ADDRESS);
         Thread t = new Thread(receiver);
         t.start();
         this.setFocusable(true);
@@ -74,8 +76,13 @@ public class GameInterface extends JPanel {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                inGame = true;
-                startButton.setVisible(false);
+                try {
+                    gameLogic.searchGame(DEFAULT_ADDRESS);
+                    inGame = true;
+                    startButton.setVisible(false);
+                } catch(Exception ioEx) {
+                    Logger.getGlobal().warning(ioEx.toString());
+                }
             }
         });
         add(startButton);

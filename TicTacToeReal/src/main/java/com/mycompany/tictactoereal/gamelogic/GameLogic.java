@@ -2,6 +2,8 @@ package com.mycompany.tictactoereal.gamelogic;
 
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.Random;
 
 public class GameLogic {
 
@@ -13,6 +15,10 @@ public class GameLogic {
     private int gameWonBy = 0;
     private MulticastPublisher publisher;
 
+    
+    //Used for temporarily differenciating users, may not be useful later
+    private String userHash;
+    
     // 0 - empty
     // 1 - x
     // 2 - o
@@ -21,14 +27,38 @@ public class GameLogic {
     public GameLogic(MulticastPublisher publisher) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
+        generateUserHash();
     }
 
     public GameLogic(MulticastPublisher publisher, int playerSymbol) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
         this.playerSymbol = playerSymbol;
+        generateUserHash();
     }
-
+    
+    private void generateUserHash() {
+        Random random = new SecureRandom();
+        char[] result = new char[10];
+        char[] characters = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();
+        
+        for (int i = 0; i < result.length; i++) {
+            // picks a random index out of character set > random character
+            int randInt = random.nextInt(characters.length);
+            result[i] = characters[randInt];
+        }
+        userHash = new String(result);
+    }
+    
+    
+    public void searchGame() throws IOException {
+        this.publisher.multicast(userHash);
+    }
+    public void searchGame(String adr) throws IOException {
+        this.publisher.multicast(userHash,adr);
+    }
+    
+    
     public int[][] getGameBoard() {
         return gameBoard;
     }
@@ -206,6 +236,14 @@ public class GameLogic {
 
     public void setSymbolInTurn(int symbolInTurn) {
         this.symbolInTurn = symbolInTurn;
+    }
+    
+    public MulticastPublisher getPublisher() {
+        return publisher;
+    }
+    
+    public String getUserHash(){
+        return this.userHash;
     }
 
     public int getPlayerAmount() {

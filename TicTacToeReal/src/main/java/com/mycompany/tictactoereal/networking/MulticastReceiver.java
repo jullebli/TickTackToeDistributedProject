@@ -5,6 +5,7 @@ import com.mycompany.tictactoereal.gamelogic.GameLogic;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Arrays;
 
 /**
  *
@@ -21,6 +22,7 @@ public class MulticastReceiver extends Thread {
         this.address = address;
     }
 
+    @Override
     public void run() {
         try {
         socket = new MulticastSocket(4446);
@@ -33,6 +35,35 @@ public class MulticastReceiver extends Thread {
               packet.getData(), 0, packet.getLength());
             if ("end".equals(received)) {
                 break;
+            } else if (received.contains(".")) { // Create a better check later
+                // THIS IS PROBABLY AN IP_ADDRESS
+                
+                String[] parts = received.split(";");
+                
+                int pos = 1;
+                
+                for (int i=1;i< parts.length;i++) {
+                    if (parts[i].equals(this.gameLogic.getUserHash())) {
+                        pos = i;
+                        break;
+                    }
+                }
+                
+                System.out.println("Switching to " + parts[0]);
+                
+                MulticastPublisher pub = this.gameLogic.getPublisher();
+                
+                group = InetAddress.getByName(parts[0]);
+                socket.joinGroup(group);
+                
+                pub.setAddress(parts[0]);
+                this.address = parts[0];
+                System.out.println("Setting playernumber to " + pos);
+                this.gameLogic.setPlayerSymbol(pos);
+                
+            } else if (received.length() == 10 && received.split(",").length == 1) {
+                // THIS IS PROBABLY A USERHASH, should be ignored
+                continue;
             } else {
                 //here separate the message which is "x,y,tileId" into parts
                 String[] parts = received.split(",");
@@ -49,4 +80,5 @@ public class MulticastReceiver extends Thread {
             System.out.println("EXCEPTION in MulticastReceiver" + e);
         }
     }
+    
 }

@@ -22,8 +22,12 @@ public class MulticastPublisher {
 
     public void multicast(
       String multicastMessage) throws IOException {
+        multicast(multicastMessage, address);
+    }
+    
+    public void multicast(String multicastMessage, String host) throws IOException {
         socket = new DatagramSocket();
-        group = InetAddress.getByName(address);
+        group = InetAddress.getByName(host);
         buf = multicastMessage.getBytes();
 
         System.out.println("Someone is multicasting");
@@ -31,5 +35,9 @@ public class MulticastPublisher {
           = new DatagramPacket(buf, buf.length, group, 4446);
         socket.send(packet);
         socket.close();
+    }
+    
+    public void setAddress(String adr) {
+        address = adr;
     }
 }
