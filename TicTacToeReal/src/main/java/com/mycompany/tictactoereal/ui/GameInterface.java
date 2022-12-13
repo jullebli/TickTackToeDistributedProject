@@ -50,6 +50,14 @@ public class GameInterface extends JPanel {
                     gameLogic.setPlayerSymbol(3);
                 } else if (e.getKeyCode() == KeyEvent.VK_4) {
                     gameLogic.setPlayerSymbol(4);
+                } else if (e.getKeyCode() == KeyEvent.VK_5) {
+                    gameLogic.setPlayerAmount(1);
+                } else if (e.getKeyCode() == KeyEvent.VK_6) {
+                    gameLogic.setPlayerAmount(2);
+                } else if (e.getKeyCode() == KeyEvent.VK_7) {
+                    gameLogic.setPlayerAmount(3);
+                } else if (e.getKeyCode() == KeyEvent.VK_8) {
+                    gameLogic.setPlayerAmount(4);
                 }
 
             }
@@ -112,38 +120,31 @@ public class GameInterface extends JPanel {
             g.drawImage(sidebar, 600, 0, null);
             g.drawImage(bottombar, 0, 600, null);
             g.setFont(font);
-            String playerSymbol = "";
-            String inTurnSymbol = "";
-            switch (gameLogic.getPlayerSymbol()) {
+            String playerSymbol = getSymbol(gameLogic.getPlayerSymbol());
+            String inTurnSymbol = getSymbol(gameLogic.getSymbolInTurn());
+            String players = "";
+            switch (gameLogic.getPlayerAmount()) {
                 case 1:
-                    playerSymbol = "❌";
+                    players = "❌";
                     break;
                 case 2:
-                    playerSymbol = "◯";
+                    players = "❌◯";
                     break;
                 case 3:
-                    playerSymbol = "△";
+                    players = "❌◯△";
                     break;
                 case 4:
-                    playerSymbol = "☆";
-                    break;
-            }
-            switch (gameLogic.getSymbolInTurn()) {
-                case 1:
-                    inTurnSymbol = "❌";
-                    break;
-                case 2:
-                    inTurnSymbol = "◯";
-                    break;
-                case 3:
-                    inTurnSymbol = "△";
-                    break;
-                case 4:
-                    inTurnSymbol = "☆";
+                    players = "❌◯△☆";
                     break;
             }
             g.drawString("Your symbol: " + playerSymbol, 35, 670);
-            g.drawString("Current turn: " + inTurnSymbol, 35, 705);
+            if (gameLogic.getGameWonBy() != 0) {
+                String wonByWho = getSymbol(gameLogic.getGameWonBy());
+                g.drawString("Game won by " + wonByWho + "!", 35, 705);
+            } else {
+                g.drawString("Current turn: " + inTurnSymbol, 35, 705);
+            }
+            g.drawString("Players: " + players, 625, 45);
             Font f = new Font("Baskerville", Font.PLAIN, 20);
             g.setFont(f);
             //g.drawString("Multicastmessage", 670, 35);
@@ -153,6 +154,20 @@ public class GameInterface extends JPanel {
 
         }
         repaint();
+    }
+
+    public String getSymbol(int i) {
+        switch (i) {
+            case 1:
+                return "❌";
+            case 2:
+                return "◯";
+            case 3:
+                return "△";
+            case 4:
+                return "☆";
+        }
+        return "fail";
     }
 
     private class MouseHandler implements MouseListener, MouseMotionListener {
@@ -167,16 +182,7 @@ public class GameInterface extends JPanel {
                 int i = gameLogic.tileIdAt(clickX, clickY);
                 boolean succeeded;
                 try {
-                    succeeded = gameLogic.placeTile(clickX, clickY, gameLogic.getPlayerSymbol(),true);
-
-                    if (succeeded) {
-                        int won = gameLogic.checkIfGameWon();
-                        if (won != 0) {
-                            System.out.println("Game won " + Math.random());
-
-                        }
-                    }
-
+                    gameLogic.placeTile(clickX, clickY, gameLogic.getPlayerSymbol(), true);
                 } catch (IOException ex) {
                     Logger.getLogger(GameInterface.class.getName()).log(Level.SEVERE, null, ex);
                 }
