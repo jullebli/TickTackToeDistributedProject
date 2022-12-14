@@ -1,6 +1,7 @@
 package com.mycompany.tictactoereal.ui;
 
 import com.mycompany.tictactoereal.gamelogic.GameLogic;
+import com.mycompany.tictactoereal.gamelogic.Move;
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
 import com.mycompany.tictactoereal.networking.MulticastReceiver;
 import java.awt.Dimension;
@@ -17,6 +18,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -31,7 +33,7 @@ public class GameInterface extends JPanel {
     private static MulticastReceiver receiver;
     private static GameLogic gameLogic;
     private static Font font;
-    
+
     private static final String DEFAULT_ADDRESS = "230.0.0.0";
 
     public GameInterface() {
@@ -60,6 +62,11 @@ public class GameInterface extends JPanel {
                     gameLogic.setPlayerAmount(3);
                 } else if (e.getKeyCode() == KeyEvent.VK_8) {
                     gameLogic.setPlayerAmount(4);
+                } else if (e.getKeyCode() == KeyEvent.VK_0) {
+                    ArrayList<Move> moves = new ArrayList<>();
+                    moves.add(new Move(1,5,5,1));
+                    moves.add(new Move(2,7,7,2));
+                    gameLogic.restoreGameState(moves);
                 }
 
             }
@@ -80,7 +87,7 @@ public class GameInterface extends JPanel {
                     gameLogic.searchGame(DEFAULT_ADDRESS);
                     inGame = true;
                     startButton.setVisible(false);
-                } catch(Exception ioEx) {
+                } catch (Exception ioEx) {
                     Logger.getGlobal().warning(ioEx.toString());
                 }
             }
