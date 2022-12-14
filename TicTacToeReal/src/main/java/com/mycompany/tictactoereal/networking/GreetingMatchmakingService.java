@@ -12,33 +12,30 @@ import java.io.*;
  *
  * @author bergmjul
  */
-public class GreetMatchmakingService {
-    private ServerSocket matchmakerSocket;
+public class GreetingMatchmakingService {
+
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
-    private String myUserHash;
-    
-    public void start(int port) throws IOException {
-        matchmakerSocket = new ServerSocket(port);
-        clientSocket = matchmakerSocket.accept();
+
+    public void start(String ip, int port) throws IOException {
+        clientSocket = new Socket(ip, port);
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String greeting = in.readLine();
-          if ("hello matchmaker".equals(greeting)) {
-              out.println("hello player");
-          } else {
-              out.println("unrecognised greeting");
-          }
+
     }
-    
+
+    public String sendMessage(String message) throws IOException {
+        out.println(message);
+        String response = in.readLine();
+        return response;
+    }
+
     public void stop() throws IOException {
         in.close();
         out.close();
         clientSocket.close();
-        matchmakerSocket.close();
     }
-    
+
     //server.start(6666) ?  https://www.baeldung.com/a-guide-to-java-sockets
-    
 }
