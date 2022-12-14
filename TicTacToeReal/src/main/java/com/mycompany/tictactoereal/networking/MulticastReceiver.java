@@ -40,9 +40,11 @@ public class MulticastReceiver extends Thread {
                 // THIS IS PROBABLY AN IP_ADDRESS
                 
                 String[] parts = received.split(",");
-                ipChange(parts[0]);
-                
                 int pos = this.findPlayerPosition(parts);
+                
+                if (pos == 0) continue;
+                
+                ipChange(parts[0]);
                 
                 System.out.println("Setting playernumber to " + pos);
                 this.gameLogic.setPlayerSymbol(pos);
@@ -84,7 +86,7 @@ public class MulticastReceiver extends Thread {
     }
     
     private int findPlayerPosition(String[] parts) {
-        int pos = 1;
+        int pos = 0;
 
         for (int i=1;i< parts.length;i++) {
             if (parts[i].equals(this.gameLogic.getUserHash())) {
