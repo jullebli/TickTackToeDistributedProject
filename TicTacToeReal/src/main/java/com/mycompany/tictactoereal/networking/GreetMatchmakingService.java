@@ -17,6 +17,7 @@ public class GreetMatchmakingService {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
+    private String myUserHash;
     
     public void start(int port) throws IOException {
         matchmakerSocket = new ServerSocket(port);
