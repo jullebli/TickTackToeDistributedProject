@@ -24,7 +24,16 @@ public class HeaderManager {
     
     
     
-    public static boolean validateHeader() {
+    public static boolean validateHeader(String fullMessage) { // Add better checks
+        String[] strArr = fullMessage.split(";");
+       
+        // valid user has
+        if (strArr[0].length() != 10 || strArr[0].contains(",")) return false; 
+       
+        // valid user list
+        if (!strArr[1].contains(",")) return false;
+        
+        
         return true;
     }
     
