@@ -39,7 +39,7 @@ public class MulticastReceiver extends Thread {
             } else if (received.contains(".")) { // Create a better check later
                 // THIS IS PROBABLY AN IP_ADDRESS
                 
-                String[] parts = received.split(";");
+                String[] parts = received.split(",");
                 ipChange(parts[0]);
                 
                 int pos = this.findPlayerPosition(parts);
