@@ -1,6 +1,7 @@
 package com.mycompany.tictactoereal;
 
 import com.mycompany.tictactoereal.ui.GameInterface;
+import com.mycompany.tictactoereal.ui.WaitingInterface;
 import java.awt.EventQueue;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -9,7 +10,8 @@ public class Main extends JFrame {
 
     public Main() {
 
-        add(new GameInterface());
+//        add(new GameInterface());
+          add( new WaitingInterface() );
 
         setResizable(false);
         pack();
