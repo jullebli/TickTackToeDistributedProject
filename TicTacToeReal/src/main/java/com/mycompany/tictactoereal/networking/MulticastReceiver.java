@@ -2,6 +2,7 @@
 package com.mycompany.tictactoereal.networking;
 
 import com.mycompany.tictactoereal.gamelogic.GameLogic;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -39,27 +40,15 @@ public class MulticastReceiver extends Thread {
                 // THIS IS PROBABLY AN IP_ADDRESS
                 
                 String[] parts = received.split(";");
+                ipChange(parts[0]);
                 
-                int pos = 1;
+                int pos = this.findPlayerPosition(parts);
                 
-                for (int i=1;i< parts.length;i++) {
-                    if (parts[i].equals(this.gameLogic.getUserHash())) {
-                        pos = i;
-                        break;
-                    }
-                }
-                
-                System.out.println("Switching to " + parts[0]);
-                
-                MulticastPublisher pub = this.gameLogic.getPublisher();
-                
-                group = InetAddress.getByName(parts[0]);
-                socket.joinGroup(group);
-                
-                pub.setAddress(parts[0]);
-                this.address = parts[0];
                 System.out.println("Setting playernumber to " + pos);
                 this.gameLogic.setPlayerSymbol(pos);
+                
+                //Set the game size 
+                this.gameLogic.setPlayerAmount(parts.length - 1);
                 
             } else if (received.length() == 10 && received.split(",").length == 1) {
                 // THIS IS PROBABLY A USERHASH, should be ignored
@@ -79,6 +68,31 @@ public class MulticastReceiver extends Thread {
         } catch (Exception e) {
             System.out.println("EXCEPTION in MulticastReceiver" + e);
         }
+    }
+    
+    private void ipChange(String address) throws IOException {
+
+        System.out.println("Switching to " + address);
+
+        MulticastPublisher pub = this.gameLogic.getPublisher();
+
+        InetAddress group = InetAddress.getByName(address);
+        socket.joinGroup(group);
+
+        pub.setAddress(address);
+        this.address = address;
+    }
+    
+    private int findPlayerPosition(String[] parts) {
+        int pos = 1;
+
+        for (int i=1;i< parts.length;i++) {
+            if (parts[i].equals(this.gameLogic.getUserHash())) {
+                pos = i;
+                break;
+            }
+        }
+        return pos;
     }
     
 }
