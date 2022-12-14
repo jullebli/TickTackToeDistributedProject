@@ -1,6 +1,6 @@
-package com.mycompany.tictactoereal.gamelogic;
+package tictactoereal.gamelogic;
 
-import com.mycompany.tictactoereal.networking.MulticastPublisher;
+import tictactoereal.networking.MulticastPublisher;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Random;

@@ -1,6 +1,6 @@
-package com.mycompany.tictactoereal;
+package tictactoereal;
 
-import com.mycompany.tictactoereal.ui.GameInterface;
+import tictactoereal.ui.GameInterface;
 import java.awt.EventQueue;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;

@@ -1,5 +1,5 @@
 
-package com.mycompany.tictactoereal.networking;
+package tictactoereal.networking;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

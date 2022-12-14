@@ -1,8 +1,8 @@
-package com.mycompany.tictactoereal.ui;
+package tictactoereal.ui;
 
-import com.mycompany.tictactoereal.gamelogic.GameLogic;
-import com.mycompany.tictactoereal.networking.MulticastPublisher;
-import com.mycompany.tictactoereal.networking.MulticastReceiver;
+import tictactoereal.gamelogic.GameLogic;
+import tictactoereal.networking.MulticastPublisher;
+import tictactoereal.networking.MulticastReceiver;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;

@@ -1,7 +1,7 @@
 
-package com.mycompany.tictactoereal.networking;
+package tictactoereal.networking;
 
-import com.mycompany.tictactoereal.gamelogic.GameLogic;
+import tictactoereal.gamelogic.GameLogic;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
