@@ -14,7 +14,7 @@ public class GameLogic {
     private int symbolInTurn = 1;
     private int playerAmount = 4;
     private int gameWonBy = 0;
-    private int turnNumber = 1;
+    private int turnNumber = 0;
     private MulticastPublisher publisher;
     private ArrayList<Move> moves;
 
@@ -47,7 +47,7 @@ public class GameLogic {
         for (int i = 0; i < moveList.size(); i++) {
             gameBoard[moveList.get(i).getX()][moveList.get(i).getY()] = moveList.get(i).getSymbol();
         }
-        symbolInTurn = moveList.get(moveList.size()-1).getSymbol();
+        symbolInTurn = moveList.get(moveList.size() - 1).getSymbol();
         symbolInTurn++;
         if (symbolInTurn >= playerAmount + 1) {
             symbolInTurn = 1;
@@ -98,7 +98,7 @@ public class GameLogic {
             }
             if (!isMulticasting) {
                 turnNumber++;
-                moves.add(new Move(x,y,tileId, turnNumber));
+                moves.add(new Move(tileId, x, y, turnNumber));
                 gameBoard[x][y] = tileId;
                 symbolInTurn++;
                 if (symbolInTurn >= playerAmount + 1) {
@@ -280,5 +280,15 @@ public class GameLogic {
     public void setGameWonBy(int gameWonBy) {
         this.gameWonBy = gameWonBy;
     }
+
+    public ArrayList<Move> getMoves() {
+        return moves;
+    }
+
+    public int getTurnNumber() {
+        return turnNumber;
+    }
+    
+    
 
 }
