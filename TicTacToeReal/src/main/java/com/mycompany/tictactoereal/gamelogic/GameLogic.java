@@ -1,6 +1,7 @@
 package com.mycompany.tictactoereal.gamelogic;
 
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
+import com.mycompany.tictactoereal.networking.Pinger;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class GameLogic {
     private int turnNumber = 1;
     private MulticastPublisher publisher;
     private ArrayList<Move> moves;
+    private String[] playerArray; 
+    private Pinger pinger;
 
     //Used for temporarily differenciating users, may not be useful later
     private String userHash;
@@ -268,6 +271,9 @@ public class GameLogic {
     public int getPlayerAmount() {
         return playerAmount;
     }
+    public String[] getPlayerArray() {
+        return this.playerArray;
+    }
 
     public void setPlayerAmount(int playerAmount) {
         this.playerAmount = playerAmount;
@@ -280,5 +286,16 @@ public class GameLogic {
     public void setGameWonBy(int gameWonBy) {
         this.gameWonBy = gameWonBy;
     }
-
+    
+    public void setPlayerArray(String[] arr) {
+        this.playerArray = arr;
+    }
+    
+    public void setPinger(Pinger p) {
+        pinger = p;
+    }
+    
+    public Pinger getPinger() {
+        return pinger;
+    }
 }
