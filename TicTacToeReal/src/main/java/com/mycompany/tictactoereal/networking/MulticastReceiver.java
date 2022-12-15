@@ -34,13 +34,14 @@ public class MulticastReceiver extends Thread {
             socket.receive(packet);
             String received = new String(
               packet.getData(), 0, packet.getLength());
+            
             if ("end".equals(received)) {
                 break;
             } else if (received.contains(".")) { // Create a better check later
                 // THIS IS PROBABLY AN IP_ADDRESS
-                
                 String[] parts = received.split(",");
                 int pos = this.findPlayerPosition(parts);
+                System.out.println(pos);
                 
                 if (pos == 0) continue;
                 
@@ -52,9 +53,19 @@ public class MulticastReceiver extends Thread {
                 //Set the game size 
                 this.gameLogic.setPlayerAmount(parts.length - 1);
                 
+                String[] playerList = Arrays.copyOfRange(parts, 1, parts.length);
+                this.gameLogic.setPlayerArray(playerList);
+                
+                Pinger pinger = new Pinger(this.gameLogic);
+                gameLogic.setPinger(pinger);
+                pinger.start();
+                
             } else if (received.length() == 10 && received.split(",").length == 1) {
                 // THIS IS PROBABLY A USERHASH, should be ignored
-                continue;
+                Pinger ping = this.gameLogic.getPinger();
+                if(ping == null) continue;
+                
+                ping.playerReset(received);
             } else {
                 //here separate the message which is "x,y,tileId" into parts
                 String[] parts = received.split(",");

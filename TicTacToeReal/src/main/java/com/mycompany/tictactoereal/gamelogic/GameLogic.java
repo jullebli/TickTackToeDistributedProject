@@ -1,8 +1,10 @@
 package com.mycompany.tictactoereal.gamelogic;
 
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
+import com.mycompany.tictactoereal.networking.Pinger;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class GameLogic {
@@ -13,12 +15,15 @@ public class GameLogic {
     private int symbolInTurn = 1;
     private int playerAmount = 4;
     private int gameWonBy = 0;
+    private int turnNumber = 0;
     private MulticastPublisher publisher;
+    private ArrayList<Move> moves;
+    private String[] playerArray; 
+    private Pinger pinger;
 
-    
     //Used for temporarily differenciating users, may not be useful later
     private String userHash;
-    
+
     // 0 - empty
     // 1 - x
     // 2 - o
@@ -27,6 +32,7 @@ public class GameLogic {
     public GameLogic(MulticastPublisher publisher) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
+        this.moves = new ArrayList<>();
         generateUserHash();
     }
 
@@ -36,12 +42,27 @@ public class GameLogic {
         this.playerSymbol = playerSymbol;
         generateUserHash();
     }
-    
+
+    public void restoreGameState(ArrayList<Move> moveList) {
+        gameBoard = new int[30][30];
+        moves = moveList;
+        //todo: sort movelist to match turn order
+        for (int i = 0; i < moveList.size(); i++) {
+            gameBoard[moveList.get(i).getX()][moveList.get(i).getY()] = moveList.get(i).getSymbol();
+        }
+        symbolInTurn = moveList.get(moveList.size() - 1).getSymbol();
+        symbolInTurn++;
+        if (symbolInTurn >= playerAmount + 1) {
+            symbolInTurn = 1;
+        }
+        checkIfGameWon();
+    }
+
     private void generateUserHash() {
         Random random = new SecureRandom();
         char[] result = new char[10];
         char[] characters = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();
-        
+
         for (int i = 0; i < result.length; i++) {
             // picks a random index out of character set > random character
             int randInt = random.nextInt(characters.length);
@@ -49,16 +70,15 @@ public class GameLogic {
         }
         userHash = new String(result);
     }
-    
-    
+
     public void searchGame() throws IOException {
         this.publisher.multicast(userHash);
     }
+
     public void searchGame(String adr) throws IOException {
-        this.publisher.multicast(userHash,adr);
+        this.publisher.multicast(userHash, adr);
     }
-    
-    
+
     public int[][] getGameBoard() {
         return gameBoard;
     }
@@ -80,6 +100,8 @@ public class GameLogic {
                 publisher.multicast(multicastMessage);
             }
             if (!isMulticasting) {
+                turnNumber++;
+                moves.add(new Move(tileId, x, y, turnNumber));
                 gameBoard[x][y] = tileId;
                 symbolInTurn++;
                 if (symbolInTurn >= playerAmount + 1) {
@@ -237,17 +259,20 @@ public class GameLogic {
     public void setSymbolInTurn(int symbolInTurn) {
         this.symbolInTurn = symbolInTurn;
     }
-    
+
     public MulticastPublisher getPublisher() {
         return publisher;
     }
-    
-    public String getUserHash(){
+
+    public String getUserHash() {
         return this.userHash;
     }
 
     public int getPlayerAmount() {
         return playerAmount;
+    }
+    public String[] getPlayerArray() {
+        return this.playerArray;
     }
 
     public void setPlayerAmount(int playerAmount) {
@@ -260,6 +285,26 @@ public class GameLogic {
 
     public void setGameWonBy(int gameWonBy) {
         this.gameWonBy = gameWonBy;
+    }
+
+    public ArrayList<Move> getMoves() {
+        return moves;
+    }
+
+    public int getTurnNumber() {
+        return turnNumber;
+    }
+    
+    public void setPlayerArray(String[] arr) {
+        this.playerArray = arr;
+    }
+    
+    public void setPinger(Pinger p) {
+        pinger = p;
+    }
+    
+    public Pinger getPinger() {
+        return pinger;
     }
 
 }
