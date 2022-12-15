@@ -1,5 +1,6 @@
 package com.mycompany.tictactoereal;
 
+import com.mycompany.tictactoereal.networking.SocketWithMatchmaker;
 import com.mycompany.tictactoereal.ui.GameInterface;
 import com.mycompany.tictactoereal.ui.WaitingInterface;
 import java.awt.EventQueue;
@@ -10,8 +11,9 @@ public class Main extends JFrame {
 
     public Main() {
 
-//        add(new GameInterface());
-          add( new WaitingInterface() );
+        WaitingInterface waiting = new WaitingInterface();
+        SocketWithMatchmaker socket = new SocketWithMatchmaker(waiting);
+        add(waiting);
 
         setResizable(false);
         pack();
@@ -30,5 +32,22 @@ public class Main extends JFrame {
                 frame.setVisible(true);
             }
         });
+        
+    }
+
+    public void enterGame(boolean gameMode) {
+
+        if (gameMode) {
+            add(new GameInterface());
+        } else {
+            add(new WaitingInterface());
+        }
+
+        setResizable(false);
+        pack();
+
+        setTitle("");
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }

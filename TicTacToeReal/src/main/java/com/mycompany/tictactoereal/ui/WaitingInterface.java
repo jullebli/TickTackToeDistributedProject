@@ -4,6 +4,7 @@
  */
 package com.mycompany.tictactoereal.ui;
 
+import com.mycompany.tictactoereal.networking.SocketWithMatchmaker;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -16,56 +17,62 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import javax.swing.JFrame;
+import com.mycompany.tictactoereal.ui.GameInterface;
+import java.awt.EventQueue;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+
 /**
  *
  * @author bivek
  */
-public class WaitingInterface extends JPanel{
-    
-    
-   
-  
+public class WaitingInterface extends JPanel {
+
     // Label to display text
-    
     private static Font font;
-    private static boolean isWaitingResponse;
- 
+    private boolean isWaitingResponse;
+    private boolean receivedStartGameMessage;
+
     // default constructor
-    
-  
     // Main class
-    public WaitingInterface()
-    {
-     
-  
+    public WaitingInterface() {
+
         // Creating a new buttons
-        
         JButton startButton = new JButton("start a game");
-        
+
         font = new Font("Baskerville", Font.PLAIN, 32);
 
         setPreferredSize(new Dimension(900, 750));
-        
+
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 isWaitingResponse = true;
                 startButton.setVisible(false);
-                
+
             }
         });
-  
+
         add(startButton);
+
     }
-    
-    
+
     public void paintComponent(Graphics g) {
         if (isWaitingResponse) {
-            g.drawString("Waiting for response of match making service",40,40);  
+            g.drawString("Waiting for response of Matchmaking service", 40, 40);
+            if (receivedStartGameMessage) {
+                startGame();
+            }
         }
         repaint();
     }
 
-    
-        
+    public void setReceivedStartGameMessage(boolean received) {
+        this.receivedStartGameMessage = received;
+    }
+
+    public void startGame() {
+        add(new GameInterface());
+
+    }
 }
