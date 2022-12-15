@@ -25,11 +25,22 @@ public class HeaderManager {
     
     
     
-    public static boolean validateHeader(String fullMessage) { // Add better checks
-        String[] strArr = fullMessage.split(";");
+    public static boolean validateHeader(String fullMessage, GameLogic gl) { // Add better checks
+        if(fullMessage.contains(".")) return true; // Ip-address? Change when adding headers to server
         
-        return
-                strArr.length == FIELDCOUNT
+        String[] strArr = fullMessage.split(";");
+        String[] usrArr = gl.getPlayerArray();
+        
+        boolean senderMatch = false; 
+        for (String usr : usrArr) {
+            if (usr.equals(strArr[0])) {
+                senderMatch = true;
+                break;
+            }
+        }
+        
+        return  senderMatch
+            &&  strArr.length == FIELDCOUNT
             && (strArr[0].length() == 10 && !strArr[0].contains(",")) // valid user hash
             &&  strArr[1].contains(",")    // valid user list
         ; 
@@ -53,7 +64,7 @@ public class HeaderManager {
     
     public static String getMessage(String fullMessage) {
         String[] strArr = fullMessage.split(";");
-        
+        if(strArr.length < FIELDCOUNT) return strArr[0]; //Due to server lacking header
         return strArr[FIELDCOUNT-1];
     }
     
