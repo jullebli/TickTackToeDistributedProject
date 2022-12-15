@@ -4,6 +4,7 @@
  */
 package com.mycompany.tictactoereal.networking;
 
+import com.mycompany.tictactoereal.gamelogic.GameLogic;
 import java.util.Arrays;
 
 /**
@@ -26,19 +27,28 @@ public class HeaderManager {
     
     public static boolean validateHeader(String fullMessage) { // Add better checks
         String[] strArr = fullMessage.split(";");
-       
-        // valid user has
-        if (strArr[0].length() != 10 || strArr[0].contains(",")) return false; 
-       
-        // valid user list
-        if (!strArr[1].contains(",")) return false;
         
-        
-        return true;
+        return
+                strArr.length == FIELDCOUNT
+            && (strArr[0].length() == 10 && !strArr[0].contains(",")) // valid user hash
+            &&  strArr[1].contains(",")    // valid user list
+        ; 
     }
     
-    public static String addHeader(String message, String sender, String[] userList) {
-        return sender + ";" + Arrays.toString(userList) + ";" + message;
+    public static String addHeader(String message, String usrHash, String[] userList) {
+        String stringList = userList[0];
+        for (int i = 1; i < userList.length; i++) {
+            stringList += "," + userList[i];
+        }
+        
+        return usrHash + ";" + stringList + ";" + message;
+    }
+    
+    public static String addHeader(String message, GameLogic gameLogic) {
+        String usrHash = gameLogic.getUserHash();
+        String[] userList = gameLogic.getPlayerArray();
+        
+        return addHeader(message, usrHash, userList);
     }
     
     public static String getMessage(String fullMessage) {
@@ -49,7 +59,6 @@ public class HeaderManager {
     
     public static String[] getUserList(String fullMessage) {
         String[] strArr = fullMessage.split(";");
-        
         String[] userList = strArr[1].split(",");
         
         return userList;
