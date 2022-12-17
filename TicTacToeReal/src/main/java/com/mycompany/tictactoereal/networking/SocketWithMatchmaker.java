@@ -25,35 +25,44 @@ public class SocketWithMatchmaker {
     }
 
     public void start(String ip, int port) throws IOException {
+        System.out.println("SocketWithMatchmaker.start(ip, port) " + ip + " " + port);
         clientSocket = new Socket(ip, port);
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
         out.println("hello matchmaker");
-        String inputLine = in.readLine();
-        while (inputLine != null) {
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            //inputLine = in.readLine();
+            System.out.println("Client received message:" + inputLine);
             if (inputLine.equals(".")) {
-                out.println("good bye");
+                sendMessage("good bye");
                 break;
             } else if (inputLine.equals("hello client")) {
-                out.prinln("we are connected");
-            }
-            out.println(inputLine);
-        }
+                sendMessage("we are connected");
 
+            } else if (inputLine.equals("You can start game")) {
+                sendMessage("Entering game");
+                waitingI.setReceivedStartGameMessage(true);
+                stopAndEnterGame();
+            }
+        }
+        System.out.println("Client went out of while loop");
     }
 
-    public String sendMessage(String message) throws IOException {
+    //setReceivedStartGameMessage
+    public void sendMessage(String message) throws IOException {
         out.println(message);
-        String response = in.readLine();
-        System.out.println("Send message " + message);
-        return response;
+        //String response = in.readLine();
+        System.out.println("Client sent message " + message);
+        //return response;
     }
 
     public void stopAndEnterGame() throws IOException {
         in.close();
         out.close();
         clientSocket.close();
+        waitingI.startGame();
 
     }
 

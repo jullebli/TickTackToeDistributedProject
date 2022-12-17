@@ -31,11 +31,11 @@ public class GameInterface extends JPanel {
     private static MulticastReceiver receiver;
     private static GameLogic gameLogic;
     private static Font font;
-    
+
     private static final String DEFAULT_ADDRESS = "230.0.0.0";
 
     public GameInterface() {
-
+        //Adresses needs to be given by Matchmaker
         publisher = new MulticastPublisher(DEFAULT_ADDRESS);
         gameLogic = new GameLogic(publisher);
         receiver = new MulticastReceiver(gameLogic, DEFAULT_ADDRESS);
@@ -69,24 +69,22 @@ public class GameInterface extends JPanel {
 
         setPreferredSize(new Dimension(900, 750));
 
-        MouseHandler handler = new MouseHandler();
-        addMouseListener(handler);
+        //MouseHandler handler = new MouseHandler();
+        //addMouseListener(handler);
+        //JButton startButton = new JButton("start a game");
+        //startButton.addActionListener(new ActionListener() {
+        // @Override
+        //public void actionPerformed(ActionEvent e) {
+        try {
+            gameLogic.searchGame(DEFAULT_ADDRESS);
+            inGame = true;
+            //startButton.setVisible(false);
+        } catch (Exception ioEx) {
+            Logger.getGlobal().warning(ioEx.toString());
+        }
 
-        JButton startButton = new JButton("start a game");
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    gameLogic.searchGame(DEFAULT_ADDRESS);
-                    inGame = true;
-                    startButton.setVisible(false);
-                } catch(Exception ioEx) {
-                    Logger.getGlobal().warning(ioEx.toString());
-                }
-            }
-        });
-        add(startButton);
-
+        //});
+        // add(startButton);
         try {
             tile_empty = ImageIO.read(new File("src/main/resources/tile_empty.png"));
             tile_x = ImageIO.read(new File("src/main/resources/tile_x.png"));
@@ -175,6 +173,7 @@ public class GameInterface extends JPanel {
                 return "☆";
         }
         return "fail";
+
     }
 
     private class MouseHandler implements MouseListener, MouseMotionListener {
