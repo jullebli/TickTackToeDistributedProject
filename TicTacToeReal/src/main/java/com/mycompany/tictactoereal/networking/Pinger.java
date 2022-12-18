@@ -48,13 +48,10 @@ public class Pinger extends Thread {
         
         while(RUNNING) {
             try {
-                publisher.multicast(gamelogic.getUserHash());
+                publisher.multicast(MessageCreator.createPing(gamelogic));
                 Thread.sleep(5000);
-                Iterator<Map.Entry <String, Integer>> it = lastSeen.entrySet().iterator();
                 
-                while(it.hasNext()) {
-                    Map.Entry <String, Integer> user = it.next();
-                    
+                for (Map.Entry <String, Integer> user : lastSeen.entrySet()) {
                     if(user.getValue() > 5); // Add failure detection here
                     
                     user.setValue(user.getValue() + 1);

@@ -65,7 +65,7 @@ public class GameInterface extends JPanel {
                 } else if (e.getKeyCode() == KeyEvent.VK_8) {
                     gameLogic.setPlayerAmount(4);
                 } else if (e.getKeyCode() == KeyEvent.VK_0) {
-                    System.out.println(MessageCreator.createSendGameStateMessage(gameLogic.getSymbolInTurn(),gameLogic.getTurnNumber(),gameLogic.getMoves()));
+                    System.out.println(MessageCreator.createSendGameStateMessage(gameLogic.getMoves(), gameLogic));
                     //ArrayList<Move> moves = new ArrayList<>();
                     //moves.add(new Move(1,5,5,1));
                    //moves.add(new Move(2,7,7,2));

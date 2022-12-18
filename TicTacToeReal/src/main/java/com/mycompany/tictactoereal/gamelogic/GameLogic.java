@@ -2,6 +2,7 @@ package com.mycompany.tictactoereal.gamelogic;
 
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
 import com.mycompany.tictactoereal.networking.Pinger;
+import com.mycompany.tictactoereal.networking.MessageCreator;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -96,7 +97,8 @@ public class GameLogic {
         }
         if (x >= 0 && x < 30 && y >= 0 && y < 30) {
             if (isMulticasting) {
-                String multicastMessage = String.valueOf(x + "," + y + "," + tileId);
+                
+                String multicastMessage = MessageCreator.createPlaceTileMessage(x, y, tileId, this);
                 publisher.multicast(multicastMessage);
             }
             if (!isMulticasting) {
@@ -272,6 +274,7 @@ public class GameLogic {
         return playerAmount;
     }
     public String[] getPlayerArray() {
+        if(this.playerArray == null)return new String[0];
         return this.playerArray;
     }
 
