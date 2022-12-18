@@ -69,20 +69,22 @@ public class GameInterface extends JPanel {
 
         setPreferredSize(new Dimension(900, 750));
 
+        inGame = true;
+
         //MouseHandler handler = new MouseHandler();
         //addMouseListener(handler);
         //JButton startButton = new JButton("start a game");
         //startButton.addActionListener(new ActionListener() {
-        // @Override
-        //public void actionPerformed(ActionEvent e) {
-        try {
-            gameLogic.searchGame(DEFAULT_ADDRESS);
-            inGame = true;
-            //startButton.setVisible(false);
-        } catch (Exception ioEx) {
-            Logger.getGlobal().warning(ioEx.toString());
-        }
-
+        //    @Override
+        //    public void actionPerformed(ActionEvent e) {
+        //        try {
+                    //gameLogic.searchGame(DEFAULT_ADDRESS);
+                    inGame = true;
+                    //startButton.setVisible(false);
+                //} catch (Exception ioEx) {
+                //    Logger.getGlobal().warning(ioEx.toString());
+                //}
+            //}
         //});
         // add(startButton);
         try {

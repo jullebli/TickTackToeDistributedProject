@@ -13,18 +13,22 @@ import java.io.*;
  *
  * @author bergmjul
  */
-public class SocketWithMatchmaker {
+public class SocketWithMatchmaker extends Thread {
 
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
     private WaitingInterface waitingI;
+    private String ip;
+    private int port;
 
-    public SocketWithMatchmaker(WaitingInterface waiting) {
+    public SocketWithMatchmaker(WaitingInterface waiting, String ip, int port) {
         this.waitingI = waiting;
+        this.ip = ip;
+        this.port = port;
     }
 
-    public void start(String ip, int port) throws IOException {
+    public void run(String ip, int port) throws IOException {
         System.out.println("SocketWithMatchmaker.start(ip, port) " + ip + " " + port);
         clientSocket = new Socket(ip, port);
         out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -47,7 +51,7 @@ public class SocketWithMatchmaker {
                 System.out.println("Client send Entering game and got multicastAddress: " + multicastAddress);
 
                 waitingI.setReceivedStartGameMessage(true);
-                stopAndEnterGame();
+                closeSockets();
             }
         }
         System.out.println("Client went out of while loop");
@@ -61,12 +65,10 @@ public class SocketWithMatchmaker {
         //return response;
     }
 
-    public void stopAndEnterGame() throws IOException {
+    public void closeSockets() throws IOException {
         in.close();
         out.close();
         clientSocket.close();
-        waitingI.startGame();
-
     }
 
     //server.start(6666) ?  https://www.baeldung.com/a-guide-to-java-sockets

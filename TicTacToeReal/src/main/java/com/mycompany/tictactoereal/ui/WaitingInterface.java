@@ -19,6 +19,7 @@ import java.awt.Graphics;
 import javax.swing.JFrame;
 import com.mycompany.tictactoereal.ui.GameInterface;
 import java.awt.EventQueue;
+import java.io.IOException;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
@@ -49,7 +50,6 @@ public class WaitingInterface extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 isWaitingResponse = true;
                 startButton.setVisible(false);
-
             }
         });
 
@@ -61,7 +61,7 @@ public class WaitingInterface extends JPanel {
         if (isWaitingResponse) {
             g.drawString("Waiting for response of Matchmaking service", 40, 40);
             if (receivedStartGameMessage) {
-                startGame();
+                g.drawString("Received of Matchmaking service", 40, 40);
             }
         }
         repaint();
@@ -69,10 +69,14 @@ public class WaitingInterface extends JPanel {
 
     public void setReceivedStartGameMessage(boolean received) {
         this.receivedStartGameMessage = received;
+        this.isWaitingResponse = false;
     }
 
-    public void startGame() {
-        add(new GameInterface());
+    public boolean getReceivedStartGameMessage() {
+        return this.receivedStartGameMessage;
+    }
 
+    public boolean getIsWaitingresponse() {
+        return this.isWaitingResponse;
     }
 }
