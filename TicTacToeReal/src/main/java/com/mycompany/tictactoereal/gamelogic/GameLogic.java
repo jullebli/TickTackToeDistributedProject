@@ -2,23 +2,21 @@ package com.mycompany.tictactoereal.gamelogic;
 
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
 import java.io.IOException;
-import java.security.SecureRandom;
-import java.util.Random;
 
 public class GameLogic {
 
-    //somehow needs to know how many players are in the game?
     private int[][] gameBoard;
-    private int playerSymbol = 1;
+    //private int playerSymbol = 1;
+    private int playerSymbol;
     private int symbolInTurn = 1;
     private int playerAmount = 4;
     private int gameWonBy = 0;
     private MulticastPublisher publisher;
+    private BoardChangedEventHandler boardChangedEventHandler;
 
-    
     //Used for temporarily differenciating users, may not be useful later
     private String userHash;
-    
+
     // 0 - empty
     // 1 - x
     // 2 - o
@@ -27,38 +25,24 @@ public class GameLogic {
     public GameLogic(MulticastPublisher publisher) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
-        generateUserHash();
+        System.out.println("GameLogic constructor 1, publisher " + publisher);
     }
 
     public GameLogic(MulticastPublisher publisher, int playerSymbol) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
         this.playerSymbol = playerSymbol;
-        generateUserHash();
+        System.out.println("GameLogic constructor 2, publisher " + publisher);
     }
-    
-    private void generateUserHash() {
-        Random random = new SecureRandom();
-        char[] result = new char[10];
-        char[] characters = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();
-        
-        for (int i = 0; i < result.length; i++) {
-            // picks a random index out of character set > random character
-            int randInt = random.nextInt(characters.length);
-            result[i] = characters[randInt];
-        }
-        userHash = new String(result);
-    }
-    
-    
+
     public void searchGame() throws IOException {
         this.publisher.multicast(userHash);
     }
+
     public void searchGame(String adr) throws IOException {
-        this.publisher.multicast(userHash,adr);
+        this.publisher.multicast(userHash, adr);
     }
-    
-    
+
     public int[][] getGameBoard() {
         return gameBoard;
     }
@@ -87,6 +71,7 @@ public class GameLogic {
                 }
                 checkIfGameWon();
             }
+            boardChanged();
             return true;
         }
         return false;
@@ -228,6 +213,7 @@ public class GameLogic {
 
     public void setPlayerSymbol(int playerSymbol) {
         this.playerSymbol = playerSymbol;
+        boardChanged();
     }
 
     public int getSymbolInTurn() {
@@ -236,13 +222,14 @@ public class GameLogic {
 
     public void setSymbolInTurn(int symbolInTurn) {
         this.symbolInTurn = symbolInTurn;
+        boardChanged();
     }
-    
+
     public MulticastPublisher getPublisher() {
         return publisher;
     }
-    
-    public String getUserHash(){
+
+    public String getUserHash() {
         return this.userHash;
     }
 
@@ -252,6 +239,7 @@ public class GameLogic {
 
     public void setPlayerAmount(int playerAmount) {
         this.playerAmount = playerAmount;
+        boardChanged();
     }
 
     public int getGameWonBy() {
@@ -260,6 +248,16 @@ public class GameLogic {
 
     public void setGameWonBy(int gameWonBy) {
         this.gameWonBy = gameWonBy;
+        boardChanged();
     }
 
+    public void setBoardChangedEventHandler(BoardChangedEventHandler handler) {
+        this.boardChangedEventHandler = handler;
+    }
+
+    private void boardChanged() {
+        if (boardChangedEventHandler != null) {
+            boardChangedEventHandler.handle(new BoardChangedEvent());
+        }
+    }
 }
