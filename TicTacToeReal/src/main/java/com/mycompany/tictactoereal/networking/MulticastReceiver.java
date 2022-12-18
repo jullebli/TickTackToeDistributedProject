@@ -53,9 +53,11 @@ public class MulticastReceiver extends Thread {
     }
     
     private void handleMessage(String received) throws IOException {
+        
+        String[] parts = received.split(",");
+        
         if (received.contains(".")) { // Create a better check later
             // THIS IS PROBABLY AN IP_ADDRESS
-            String[] parts = received.split(",");
             int pos = this.findPlayerPosition(parts);
             System.out.println(pos);
 
@@ -84,10 +86,14 @@ public class MulticastReceiver extends Thread {
             ping.playerReset(received);
         } else {
             //here separate the message which is "x,y,tileId" into parts
-            String[] parts = received.split(",");
+            if (received.length() < 5) return; // not valid move information
+            
+            if (gameLogic.getTurnNumber() != Integer.parseInt(parts[4]) || gameLogic.getSymbolInTurn() != Integer.parseInt(parts[3])) return; // Add failure resolution here 
+            
             int x = Integer.parseInt(parts[0]);
             int y = Integer.parseInt(parts[1]);
             int tileId = Integer.parseInt(parts[2]);
+            
             System.out.println("Someone made a move");
             gameLogic.placeTile(x, y, tileId,false);
         }

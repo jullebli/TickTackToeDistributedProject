@@ -8,12 +8,12 @@ public class MessageCreator {
 
     public static String createPlaceTileMessage(int x, int y, int tileId, GameLogic gameLogic) {
         String message = x + "," + y + "," + tileId;
-        return HeaderManager.addHeader(message, gameLogic);
+        return HeaderManager.addHeaderWithMovecount(message, gameLogic);
     }
 
     public static String createSendGameStateMessage(ArrayList<Move> moves, GameLogic gameLogic) {
         String message = "";
-        message += getHeader(gameLogic);
+        
         for (int i = 0; i < moves.size(); i++) {
             message += ";";
             message += moves.get(i).getX();
@@ -24,17 +24,7 @@ public class MessageCreator {
             message += ",";
             message += moves.get(i).getTurnNumber();
         }
-        return message;
-    }
-
-    public static String getHeader(int symbolInTurn, int turnNumber) {
-        String header = "todo-header";
-        return header + "," + symbolInTurn + "," + turnNumber;
-    }
-    
-    public static String getHeader(GameLogic gameLogic) { 
-        String header = "todo-header";
-        return header + "," + gameLogic.getSymbolInTurn() + "," + gameLogic.getTurnNumber();
+        return HeaderManager.addHeader(message, gameLogic);
     }
     
     public static String createPing(GameLogic gameLogic) {

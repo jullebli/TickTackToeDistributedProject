@@ -47,6 +47,7 @@ public class HeaderManager {
     }
     
     public static String addHeader(String message, String usrHash, String[] userList) {
+        if(userList.length == 0) return usrHash + ";" + usrHash + ";" + message;
         String stringList = userList[0];
         for (int i = 1; i < userList.length; i++) {
             stringList += "," + userList[i];
@@ -60,6 +61,11 @@ public class HeaderManager {
         String[] userList = gameLogic.getPlayerArray();
         
         return addHeader(message, usrHash, userList);
+    }
+    
+    public static String addHeaderWithMovecount(String message, GameLogic gameLogic) {
+        String newMessage = message + "," + gameLogic.getSymbolInTurn() + "," + gameLogic.getTurnNumber();
+        return  HeaderManager.addHeader(newMessage, gameLogic);
     }
     
     public static String getMessage(String fullMessage) {
