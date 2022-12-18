@@ -1,7 +1,11 @@
 package com.mycompany.tictactoereal.gamelogic;
 
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
+import com.mycompany.tictactoereal.networking.Pinger;
+import com.mycompany.tictactoereal.networking.MessageCreator;
 import java.io.IOException;
+import java.util.ArrayList;
+
 
 public class GameLogic {
 
@@ -11,8 +15,12 @@ public class GameLogic {
     private int symbolInTurn = 1;
     private int playerAmount = 4;
     private int gameWonBy = 0;
+    private int turnNumber = 0;
     private MulticastPublisher publisher;
     private BoardChangedEventHandler boardChangedEventHandler;
+    private ArrayList<Move> moves;
+    private String[] playerArray; 
+    private Pinger pinger;
 
     //Used for temporarily differenciating users, may not be useful later
     private String userHash;
@@ -26,6 +34,8 @@ public class GameLogic {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
         System.out.println("GameLogic constructor 1, publisher " + publisher);
+        this.moves = new ArrayList<>();
+
     }
 
     public GameLogic(MulticastPublisher publisher, int playerSymbol) {
@@ -33,10 +43,22 @@ public class GameLogic {
         this.publisher = publisher;
         this.playerSymbol = playerSymbol;
         System.out.println("GameLogic constructor 2, publisher " + publisher);
+
     }
 
-    public void searchGame() throws IOException {
-        this.publisher.multicast(userHash);
+    public void restoreGameState(ArrayList<Move> moveList) {
+        gameBoard = new int[30][30];
+        moves = moveList;
+        //todo: sort movelist to match turn order
+        for (int i = 0; i < moveList.size(); i++) {
+            gameBoard[moveList.get(i).getX()][moveList.get(i).getY()] = moveList.get(i).getSymbol();
+        }
+        symbolInTurn = moveList.get(moveList.size() - 1).getSymbol();
+        symbolInTurn++;
+        if (symbolInTurn >= playerAmount + 1) {
+            symbolInTurn = 1;
+        }
+        checkIfGameWon();
     }
 
     public void searchGame(String adr) throws IOException {
@@ -60,10 +82,13 @@ public class GameLogic {
         }
         if (x >= 0 && x < 30 && y >= 0 && y < 30) {
             if (isMulticasting) {
-                String multicastMessage = String.valueOf(x + "," + y + "," + tileId);
+                
+                String multicastMessage = MessageCreator.createPlaceTileMessage(x, y, tileId, this);
                 publisher.multicast(multicastMessage);
             }
             if (!isMulticasting) {
+                turnNumber++;
+                moves.add(new Move(tileId, x, y, turnNumber));
                 gameBoard[x][y] = tileId;
                 symbolInTurn++;
                 if (symbolInTurn >= playerAmount + 1) {
@@ -232,9 +257,17 @@ public class GameLogic {
     public String getUserHash() {
         return this.userHash;
     }
+    
+    public void setUserHash(String userHash) {
+        this.userHash = userHash;
+    }
 
     public int getPlayerAmount() {
         return playerAmount;
+    }
+    public String[] getPlayerArray() {
+        if(this.playerArray == null)return new String[0];
+        return this.playerArray;
     }
 
     public void setPlayerAmount(int playerAmount) {
@@ -259,5 +292,25 @@ public class GameLogic {
         if (boardChangedEventHandler != null) {
             boardChangedEventHandler.handle(new BoardChangedEvent());
         }
+    }
+
+    public ArrayList<Move> getMoves() {
+        return moves;
+    }
+
+    public int getTurnNumber() {
+        return turnNumber;
+    }
+    
+    public void setPlayerArray(String[] arr) {
+        this.playerArray = arr;
+    }
+    
+    public void setPinger(Pinger p) {
+        pinger = p;
+    }
+    
+    public Pinger getPinger() {
+        return pinger;
     }
 }

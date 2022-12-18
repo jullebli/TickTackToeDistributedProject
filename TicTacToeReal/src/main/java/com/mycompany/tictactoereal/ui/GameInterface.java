@@ -1,6 +1,8 @@
 package com.mycompany.tictactoereal.ui;
 
 import com.mycompany.tictactoereal.gamelogic.GameLogic;
+import com.mycompany.tictactoereal.gamelogic.Move;
+import com.mycompany.tictactoereal.networking.MessageCreator;
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
 import com.mycompany.tictactoereal.networking.MulticastReceiver;
 import java.awt.Dimension;
@@ -14,6 +16,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -30,13 +33,15 @@ public class GameInterface extends JPanel {
     private static Font font;
     //private static final String DEFAULT_ADDRESS = "230.0.0.0";
 
+
     public GameInterface(String multicastAddress, int playerNumber, String [] userHashes) {
         //Adresses needs to be given by Matchmaker
         publisher = new MulticastPublisher(multicastAddress);
         gameLogic = new GameLogic(publisher);
         gameLogic.setPlayerSymbol(playerNumber + 1);
         gameLogic.setPlayerAmount(userHashes.length);
-
+        gameLogic.setUserHash(userHashes[playerNumber]);
+        gameLogic.setPlayerArray(userHashes);
         gameLogic.setBoardChangedEventHandler(event -> {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -52,6 +57,7 @@ public class GameInterface extends JPanel {
         this.setFocusable(true);
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
+                //commands for testing during development
                 if (e.getKeyCode() == KeyEvent.VK_1) {
                     gameLogic.setPlayerSymbol(1);
                 } else if (e.getKeyCode() == KeyEvent.VK_2) {
@@ -68,6 +74,12 @@ public class GameInterface extends JPanel {
                     gameLogic.setPlayerAmount(3);
                 } else if (e.getKeyCode() == KeyEvent.VK_8) {
                     gameLogic.setPlayerAmount(4);
+                } else if (e.getKeyCode() == KeyEvent.VK_0) {
+                    System.out.println(MessageCreator.createSendGameStateMessage(gameLogic.getMoves(), gameLogic));
+                    //ArrayList<Move> moves = new ArrayList<>();
+                    //moves.add(new Move(1,5,5,1));
+                   //moves.add(new Move(2,7,7,2));
+                    //gameLogic.restoreGameState(moves);
                 }
 
             }
