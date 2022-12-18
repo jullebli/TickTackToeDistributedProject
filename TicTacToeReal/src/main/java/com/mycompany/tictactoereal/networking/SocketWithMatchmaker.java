@@ -42,7 +42,10 @@ public class SocketWithMatchmaker {
                 sendMessage("we are connected");
 
             } else if (inputLine.equals("You can start game")) {
+                String multicastAddress = in.readLine();
                 sendMessage("Entering game");
+                System.out.println("Client send Entering game and got multicastAddress: " + multicastAddress);
+
                 waitingI.setReceivedStartGameMessage(true);
                 stopAndEnterGame();
             }
