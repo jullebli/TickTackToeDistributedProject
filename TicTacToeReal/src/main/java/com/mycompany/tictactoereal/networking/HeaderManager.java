@@ -27,9 +27,14 @@ public class HeaderManager {
     
     public static boolean validateHeader(String fullMessage, GameLogic gl) { // Add better checks
         if(fullMessage.contains(".")) return true; // Ip-address? Change when adding headers to server
-        
+        //System.out.println("validateHeader fullMessage " + fullMessage);
         String[] strArr = fullMessage.split(";");
         String[] usrArr = gl.getPlayerArray();
+        //System.out.println("strArr[0]:" + strArr[0]);
+
+        if (strArr[0].equals(gl.getUserHash())) {
+            return false;
+        }
         
         boolean senderMatch = false; 
         for (String usr : usrArr) {

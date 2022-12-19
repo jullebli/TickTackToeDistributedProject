@@ -31,6 +31,18 @@ public class MessageCreator {
         return HeaderManager.addHeader(gameLogic.getUserHash(), gameLogic);
     }
 
+    public static String suggestKickingOut(GameLogic gameLogic, String toBeKickedUserHash) {
+        String message = "suggestKickout:" + toBeKickedUserHash;
+
+        return HeaderManager.addHeader(message, gameLogic);
+    }
+
+    public static String kickOut(GameLogic gameLogic, String kickedUserHash) {
+        String message = "consensusKickOut:" + kickedUserHash;
+
+        return HeaderManager.addHeader(message, gameLogic);
+    }
+
     //every message has information who made the last move and how many moves have been made in the game
     //other messages we planned:
     //--------------------------

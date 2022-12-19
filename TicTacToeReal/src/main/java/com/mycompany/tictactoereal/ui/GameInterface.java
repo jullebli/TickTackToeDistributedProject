@@ -40,6 +40,7 @@ public class GameInterface extends JPanel {
         gameLogic = new GameLogic(publisher);
         gameLogic.setPlayerSymbol(playerNumber + 1);
         gameLogic.setPlayerAmount(userHashes.length);
+        gameLogic.setVotingToKickOut(userHashes);
         gameLogic.setUserHash(userHashes[playerNumber]);
         gameLogic.setPlayerArray(userHashes);
         gameLogic.setBoardChangedEventHandler(event -> {

@@ -18,11 +18,11 @@ public class MulticastPublisher {
 
     public MulticastPublisher(String address) {
         this.address = address;
-        System.out.println("made multicastReceiver \"" + address + "\"");
+        //System.out.println("made multicastReceiver \"" + address + "\"");
     }
 
     public void multicast(String multicastMessage) throws IOException {
-        System.out.println("Multicasting");
+        //System.out.println("Multicasting");
         multicast(multicastMessage, address);
     }
 
@@ -31,7 +31,7 @@ public class MulticastPublisher {
         group = InetAddress.getByName(host);
         buf = multicastMessage.getBytes();
 
-        System.out.println("Someone is multicasting");
+        //System.out.println("Someone is multicasting");
         DatagramPacket packet
                 = new DatagramPacket(buf, buf.length, group, 4446);
         socket.send(packet);

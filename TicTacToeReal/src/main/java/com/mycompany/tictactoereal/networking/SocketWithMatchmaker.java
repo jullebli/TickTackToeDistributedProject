@@ -27,7 +27,7 @@ public class SocketWithMatchmaker extends Thread {
     @Override
     public void run() {
         try {
-            System.out.println("SocketWithMatchmaker.start(ip, port) " + ip + " " + port);
+            //System.out.println("SocketWithMatchmaker.start(ip, port) " + ip + " " + port);
             clientSocket = new Socket(ip, port);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));

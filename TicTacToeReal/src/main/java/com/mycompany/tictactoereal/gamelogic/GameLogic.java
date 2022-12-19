@@ -5,7 +5,10 @@ import com.mycompany.tictactoereal.networking.Pinger;
 import com.mycompany.tictactoereal.networking.MessageCreator;
 import java.io.IOException;
 import java.util.ArrayList;
-
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GameLogic {
 
@@ -19,8 +22,11 @@ public class GameLogic {
     private MulticastPublisher publisher;
     private BoardChangedEventHandler boardChangedEventHandler;
     private ArrayList<Move> moves;
-    private String[] playerArray; 
+    private String[] playerArray;
     private Pinger pinger;
+    private ArrayList<Integer> eliminatedTurnNumbers;
+    //key is userHash and list contains every userHash voting to kick out
+    private HashMap<String, ArrayList<String>> votersForKickingOut;
 
     //Used for temporarily differenciating users, may not be useful later
     private String userHash;
@@ -33,8 +39,9 @@ public class GameLogic {
     public GameLogic(MulticastPublisher publisher) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
-        System.out.println("GameLogic constructor 1, publisher " + publisher);
+        //System.out.println("GameLogic constructor 1, publisher " + publisher);
         this.moves = new ArrayList<>();
+        this.eliminatedTurnNumbers = new ArrayList<>();
 
     }
 
@@ -42,11 +49,13 @@ public class GameLogic {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
         this.playerSymbol = playerSymbol;
-        System.out.println("GameLogic constructor 2, publisher " + publisher);
+        this.eliminatedTurnNumbers = new ArrayList<>();
+        //System.out.println("GameLogic constructor 2, publisher " + publisher);
 
     }
 
     public void restoreGameState(ArrayList<Move> moveList) {
+        //was done to send game state to someone dropped out
         gameBoard = new int[30][30];
         moves = moveList;
         //todo: sort movelist to match turn order
@@ -77,27 +86,36 @@ public class GameLogic {
     }
 
     public boolean placeTile(int x, int y, int tileId, boolean isMulticasting) throws IOException {
+        //if (isMulticasting && (symbolInTurn != playerSymbol || gameBoard[x][y] != 0) || gameWonBy != 0) {
         if (isMulticasting && (symbolInTurn != playerSymbol || gameBoard[x][y] != 0) || gameWonBy != 0) {
             return false;
         }
         if (x >= 0 && x < 30 && y >= 0 && y < 30) {
             if (isMulticasting) {
-                
+
                 String multicastMessage = MessageCreator.createPlaceTileMessage(x, y, tileId, this);
                 publisher.multicast(multicastMessage);
             }
-            if (!isMulticasting) {
-                turnNumber++;
-                moves.add(new Move(tileId, x, y, turnNumber));
-                gameBoard[x][y] = tileId;
+
+            turnNumber++;
+            moves.add(new Move(tileId, x, y, turnNumber));
+            gameBoard[x][y] = tileId;
+            symbolInTurn++;
+
+            if (symbolInTurn >= playerAmount + 1) {
+                symbolInTurn = 1;
+
+            }
+            while (eliminatedTurnNumbers.contains(symbolInTurn)) {
                 symbolInTurn++;
                 if (symbolInTurn >= playerAmount + 1) {
                     symbolInTurn = 1;
                 }
-                checkIfGameWon();
             }
+            checkIfGameWon();
             boardChanged();
             return true;
+
         }
         return false;
     }
@@ -257,7 +275,7 @@ public class GameLogic {
     public String getUserHash() {
         return this.userHash;
     }
-    
+
     public void setUserHash(String userHash) {
         this.userHash = userHash;
     }
@@ -265,14 +283,80 @@ public class GameLogic {
     public int getPlayerAmount() {
         return playerAmount;
     }
+
     public String[] getPlayerArray() {
-        if(this.playerArray == null)return new String[0];
+        if (this.playerArray == null) {
+            return new String[0];
+        }
         return this.playerArray;
     }
 
     public void setPlayerAmount(int playerAmount) {
         this.playerAmount = playerAmount;
         boardChanged();
+    }
+
+    public void voteForKickingOutForUserFromUser(String voterUserHash, String votedUserHash) {
+        votersForKickingOut.get(votedUserHash).add(voterUserHash);
+        if (votersForKickingOut(votedUserHash) == this.getPlayerAmount() - 1) {
+            System.out.println("All voted for kicking out");
+            try {
+                publisher.multicast(MessageCreator.kickOut(this, votedUserHash));
+                System.out.println("multicast(messageCreator.kickout) called");
+            } catch (IOException ex) {
+                System.out.println("IOException in multicasting kicking out");
+            }
+            System.out.println("all voted and after multicast");
+            int index = -1;
+            String[] newPlayers = new String[this.getPlayerArray().length - 1];
+            System.out.println("bnewPlayers initiated");
+            for (int i = 0, k = 0; i < this.getPlayerArray().length; i++) {
+                if (!this.getPlayerArray()[i].equals(votedUserHash)) {
+                    newPlayers[k] = this.getPlayerArray()[i];
+                    k++;
+                } else {
+                    System.out.println("index" + i);
+                    System.out.println("kciked out player" + this.getPlayerArray()[i]);
+                    newPlayers[k] = "XXX";
+                    index = i;
+                }
+            }
+            System.out.println("setting PlayerAmount and array and printing array");
+            for (int i=0; i < newPlayers.length; i++) {
+                System.out.println(newPlayers[i]);
+            }
+            this.setPlayerAmount(newPlayers.length);
+            this.setPlayerArray(newPlayers);
+            if (index != -1) {
+                skipKickedOutTurnAndSymbol(index + 1);
+            }
+            pinger.deletePlayer(votedUserHash);
+            boardChanged();
+        }
+    }
+
+    public void skipKickedOutTurnAndSymbol(int turnNumber) {
+        this.eliminatedTurnNumbers.add(turnNumber);
+    }
+
+    public int votersForKickingOut(String userHash) {
+        return this.votersForKickingOut.get(userHash).size();
+    }
+
+    public boolean haveAlreadyVotedForKickingOut(String userHash) {
+        if (votersForKickingOut.get(userHash).contains(this.userHash)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void setVotingToKickOut(String[] userHashes) {
+        HashMap<String, ArrayList<String>> voting = new HashMap<>();
+        for (int i = 0; i < userHashes.length; i++) {
+            voting.put(userHashes[i], new ArrayList<>());
+        }
+        this.votersForKickingOut = voting;
     }
 
     public int getGameWonBy() {
@@ -301,15 +385,15 @@ public class GameLogic {
     public int getTurnNumber() {
         return turnNumber;
     }
-    
+
     public void setPlayerArray(String[] arr) {
         this.playerArray = arr;
     }
-    
+
     public void setPinger(Pinger p) {
         pinger = p;
     }
-    
+
     public Pinger getPinger() {
         return pinger;
     }
