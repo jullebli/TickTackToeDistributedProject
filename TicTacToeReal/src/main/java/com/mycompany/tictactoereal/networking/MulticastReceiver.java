@@ -42,39 +42,12 @@ public class MulticastReceiver extends Thread {
                 if ("end".equals(received)) {
                     break;
                 }
-/*
-                    System.out.println("Switching to " + parts[0]);
 
-                    MulticastPublisher pub = this.gameLogic.getPublisher();
-
-                    group = InetAddress.getByName(parts[0]);
-                    socket.joinGroup(group);
-
-                    pub.setAddress(parts[0]);
-                    this.address = parts[0];
-                    System.out.println("Setting playernumber to " + pos);
-                    this.gameLogic.setPlayerSymbol(pos);
-
-                } else if (received.length() == 10 && received.split(",").length == 1) {
-                    // THIS IS PROBABLY A USERHASH, should be ignored
-                    continue;
-                } else {
-                    //here separate the message which is "x,y,tileId" into parts
-                    String[] parts = received.split(",");
-                    int x = Integer.parseInt(parts[0]);
-                    int y = Integer.parseInt(parts[1]);
-                    int tileId = Integer.parseInt(parts[2]);
-                    System.out.println("Someone made a move");
-                    gameLogic.placeTile(x, y, tileId, false);
-                }
-            }
-            socket.leaveGroup(group);
-            socket.close();
-*/
             System.out.println("received:" + received);
             if(!HeaderManager.validateHeader(received, gameLogic)) continue;
             
             String message = HeaderManager.getMessage(received);
+            System.out.println("handleMessage called with message" + message);
             handleMessage(message);
         }
         socket.leaveGroup(group);
@@ -88,6 +61,7 @@ public class MulticastReceiver extends Thread {
         
         String[] parts = received.split(",");
         
+        /*
         if (received.contains(".")) { // Create a better check later
             // THIS IS PROBABLY AN IP_ADDRESS
             int pos = this.findPlayerPosition(parts);
@@ -110,7 +84,9 @@ public class MulticastReceiver extends Thread {
             gameLogic.setPinger(pinger);
             pinger.start();
 
-        } else if (received.length() == 10 && received.split(",").length == 1) {
+        }
+*/
+        if (received.length() == 10 && received.split(",").length == 1) {
             // THIS IS PROBABLY A USERHASH, should be ignored
             Pinger ping = this.gameLogic.getPinger();
             if(ping == null) return;

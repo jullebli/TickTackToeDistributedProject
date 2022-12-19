@@ -5,6 +5,7 @@ import com.mycompany.tictactoereal.gamelogic.Move;
 import com.mycompany.tictactoereal.networking.MessageCreator;
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
 import com.mycompany.tictactoereal.networking.MulticastReceiver;
+import com.mycompany.tictactoereal.networking.Pinger;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -33,8 +34,7 @@ public class GameInterface extends JPanel {
     private static Font font;
     //private static final String DEFAULT_ADDRESS = "230.0.0.0";
 
-
-    public GameInterface(String multicastAddress, int playerNumber, String [] userHashes) {
+    public GameInterface(String multicastAddress, int playerNumber, String[] userHashes) {
         //Adresses needs to be given by Matchmaker
         publisher = new MulticastPublisher(multicastAddress);
         gameLogic = new GameLogic(publisher);
@@ -54,6 +54,10 @@ public class GameInterface extends JPanel {
         receiver = new MulticastReceiver(gameLogic, multicastAddress);
         Thread t = new Thread(receiver);
         t.start();
+        Pinger pinger = new Pinger(this.gameLogic);
+        gameLogic.setPinger(pinger);
+        pinger.start();
+
         this.setFocusable(true);
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -78,7 +82,7 @@ public class GameInterface extends JPanel {
                     System.out.println(MessageCreator.createSendGameStateMessage(gameLogic.getMoves(), gameLogic));
                     //ArrayList<Move> moves = new ArrayList<>();
                     //moves.add(new Move(1,5,5,1));
-                   //moves.add(new Move(2,7,7,2));
+                    //moves.add(new Move(2,7,7,2));
                     //gameLogic.restoreGameState(moves);
                 }
 
