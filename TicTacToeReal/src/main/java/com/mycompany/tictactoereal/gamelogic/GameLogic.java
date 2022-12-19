@@ -4,20 +4,20 @@ import com.mycompany.tictactoereal.networking.MulticastPublisher;
 import com.mycompany.tictactoereal.networking.Pinger;
 import com.mycompany.tictactoereal.networking.MessageCreator;
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Random;
+
 
 public class GameLogic {
 
-    //somehow needs to know how many players are in the game?
     private int[][] gameBoard;
-    private int playerSymbol = 1;
+    //private int playerSymbol = 1;
+    private int playerSymbol;
     private int symbolInTurn = 1;
     private int playerAmount = 4;
     private int gameWonBy = 0;
     private int turnNumber = 0;
     private MulticastPublisher publisher;
+    private BoardChangedEventHandler boardChangedEventHandler;
     private ArrayList<Move> moves;
     private String[] playerArray; 
     private Pinger pinger;
@@ -33,15 +33,17 @@ public class GameLogic {
     public GameLogic(MulticastPublisher publisher) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
+        System.out.println("GameLogic constructor 1, publisher " + publisher);
         this.moves = new ArrayList<>();
-        generateUserHash();
+
     }
 
     public GameLogic(MulticastPublisher publisher, int playerSymbol) {
         this.gameBoard = new int[30][30];
         this.publisher = publisher;
         this.playerSymbol = playerSymbol;
-        generateUserHash();
+        System.out.println("GameLogic constructor 2, publisher " + publisher);
+
     }
 
     public void restoreGameState(ArrayList<Move> moveList) {
@@ -57,23 +59,6 @@ public class GameLogic {
             symbolInTurn = 1;
         }
         checkIfGameWon();
-    }
-
-    private void generateUserHash() {
-        Random random = new SecureRandom();
-        char[] result = new char[10];
-        char[] characters = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();
-
-        for (int i = 0; i < result.length; i++) {
-            // picks a random index out of character set > random character
-            int randInt = random.nextInt(characters.length);
-            result[i] = characters[randInt];
-        }
-        userHash = new String(result);
-    }
-
-    public void searchGame() throws IOException {
-        this.publisher.multicast(userHash);
     }
 
     public void searchGame(String adr) throws IOException {
@@ -111,6 +96,7 @@ public class GameLogic {
                 }
                 checkIfGameWon();
             }
+            boardChanged();
             return true;
         }
         return false;
@@ -252,6 +238,7 @@ public class GameLogic {
 
     public void setPlayerSymbol(int playerSymbol) {
         this.playerSymbol = playerSymbol;
+        boardChanged();
     }
 
     public int getSymbolInTurn() {
@@ -260,6 +247,7 @@ public class GameLogic {
 
     public void setSymbolInTurn(int symbolInTurn) {
         this.symbolInTurn = symbolInTurn;
+        boardChanged();
     }
 
     public MulticastPublisher getPublisher() {
@@ -268,6 +256,10 @@ public class GameLogic {
 
     public String getUserHash() {
         return this.userHash;
+    }
+    
+    public void setUserHash(String userHash) {
+        this.userHash = userHash;
     }
 
     public int getPlayerAmount() {
@@ -280,6 +272,7 @@ public class GameLogic {
 
     public void setPlayerAmount(int playerAmount) {
         this.playerAmount = playerAmount;
+        boardChanged();
     }
 
     public int getGameWonBy() {
@@ -288,6 +281,17 @@ public class GameLogic {
 
     public void setGameWonBy(int gameWonBy) {
         this.gameWonBy = gameWonBy;
+        boardChanged();
+    }
+
+    public void setBoardChangedEventHandler(BoardChangedEventHandler handler) {
+        this.boardChangedEventHandler = handler;
+    }
+
+    private void boardChanged() {
+        if (boardChangedEventHandler != null) {
+            boardChangedEventHandler.handle(new BoardChangedEvent());
+        }
     }
 
     public ArrayList<Move> getMoves() {
@@ -309,5 +313,4 @@ public class GameLogic {
     public Pinger getPinger() {
         return pinger;
     }
-
 }

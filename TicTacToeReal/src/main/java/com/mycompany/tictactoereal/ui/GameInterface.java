@@ -5,14 +5,12 @@ import com.mycompany.tictactoereal.gamelogic.Move;
 import com.mycompany.tictactoereal.networking.MessageCreator;
 import com.mycompany.tictactoereal.networking.MulticastPublisher;
 import com.mycompany.tictactoereal.networking.MulticastReceiver;
+import com.mycompany.tictactoereal.networking.Pinger;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -23,8 +21,8 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class GameInterface extends JPanel {
 
@@ -34,16 +32,32 @@ public class GameInterface extends JPanel {
     private static MulticastReceiver receiver;
     private static GameLogic gameLogic;
     private static Font font;
+    //private static final String DEFAULT_ADDRESS = "230.0.0.0";
 
-    private static final String DEFAULT_ADDRESS = "230.0.0.0";
-
-    public GameInterface() {
-
-        publisher = new MulticastPublisher(DEFAULT_ADDRESS);
+    public GameInterface(String multicastAddress, int playerNumber, String[] userHashes) {
+        //Adresses needs to be given by Matchmaker
+        publisher = new MulticastPublisher(multicastAddress);
         gameLogic = new GameLogic(publisher);
-        receiver = new MulticastReceiver(gameLogic, DEFAULT_ADDRESS);
+        gameLogic.setPlayerSymbol(playerNumber + 1);
+        gameLogic.setPlayerAmount(userHashes.length);
+        gameLogic.setUserHash(userHashes[playerNumber]);
+        gameLogic.setPlayerArray(userHashes);
+        gameLogic.setBoardChangedEventHandler(event -> {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("Repainting");
+                    repaint();
+                }
+            });
+        });
+        receiver = new MulticastReceiver(gameLogic, multicastAddress);
         Thread t = new Thread(receiver);
         t.start();
+        Pinger pinger = new Pinger(this.gameLogic);
+        gameLogic.setPinger(pinger);
+        pinger.start();
+
         this.setFocusable(true);
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -68,7 +82,7 @@ public class GameInterface extends JPanel {
                     System.out.println(MessageCreator.createSendGameStateMessage(gameLogic.getMoves(), gameLogic));
                     //ArrayList<Move> moves = new ArrayList<>();
                     //moves.add(new Move(1,5,5,1));
-                   //moves.add(new Move(2,7,7,2));
+                    //moves.add(new Move(2,7,7,2));
                     //gameLogic.restoreGameState(moves);
                 }
 
@@ -79,23 +93,10 @@ public class GameInterface extends JPanel {
 
         setPreferredSize(new Dimension(900, 750));
 
+        inGame = true;
+
         MouseHandler handler = new MouseHandler();
         addMouseListener(handler);
-
-        JButton startButton = new JButton("start a game");
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    gameLogic.searchGame(DEFAULT_ADDRESS);
-                    inGame = true;
-                    startButton.setVisible(false);
-                } catch (Exception ioEx) {
-                    Logger.getGlobal().warning(ioEx.toString());
-                }
-            }
-        });
-        add(startButton);
 
         try {
             tile_empty = ImageIO.read(new File("src/main/resources/tile_empty.png"));
@@ -170,7 +171,8 @@ public class GameInterface extends JPanel {
             //}
 
         }
-        repaint();
+        System.out.println("PaintComponent GameInterface");
+        //repaint();
     }
 
     public String getSymbol(int i) {
@@ -185,6 +187,7 @@ public class GameInterface extends JPanel {
                 return "☆";
         }
         return "fail";
+
     }
 
     private class MouseHandler implements MouseListener, MouseMotionListener {
@@ -203,7 +206,6 @@ public class GameInterface extends JPanel {
                 } catch (IOException ex) {
                     Logger.getLogger(GameInterface.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
             }
         }
 

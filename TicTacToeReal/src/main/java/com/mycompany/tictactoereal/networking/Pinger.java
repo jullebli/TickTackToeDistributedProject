@@ -39,7 +39,7 @@ public class Pinger extends Thread {
         }
         
     }
-    
+
     @Override
     public void run() {
         this.RUNNING = true;
@@ -57,7 +57,7 @@ public class Pinger extends Thread {
                     user.setValue(user.getValue() + 1);
                 }
                 
-                System.out.println(lastSeen);
+                System.out.println("Pinger" + lastSeen);
                 
             } catch (InterruptedException | IOException ex) {
                 Logger.getLogger(Pinger.class.getName()).log(Level.SEVERE, null, ex);

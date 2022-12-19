@@ -1,4 +1,3 @@
-
 package com.mycompany.tictactoereal.networking;
 
 import com.mycompany.tictactoereal.gamelogic.GameLogic;
@@ -13,6 +12,7 @@ import java.util.Arrays;
  * @author bergmjul
  */
 public class MulticastReceiver extends Thread {
+
     protected MulticastSocket socket = null;
     protected byte[] buf = new byte[256];
     private GameLogic gameLogic;
@@ -21,28 +21,33 @@ public class MulticastReceiver extends Thread {
     public MulticastReceiver(GameLogic gamelogic, String address) {
         this.gameLogic = gamelogic;
         this.address = address;
+        System.out.println("MulticastReceiver made");
     }
 
     @Override
     public void run() {
+        System.out.println("MulticastReceiver.run");
         try {
-        socket = new MulticastSocket(4446);
-        InetAddress group = InetAddress.getByName(address);
-        socket.joinGroup(group);
-        
-        while (true) {
-            DatagramPacket packet = new DatagramPacket(buf, buf.length);
-            socket.receive(packet);
-            String received = new String(
-              packet.getData(), 0, packet.getLength());
-            
-            if ("end".equals(received)) {
-                break;
-            }
-            
+            socket = new MulticastSocket(4446);
+            System.out.println("MulticastReceiver \"" + address + "\"");
+            InetAddress group = InetAddress.getByName(address);
+            socket.joinGroup(group);
+
+            while (true) {
+                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                socket.receive(packet);
+                String received = new String(
+                        packet.getData(), 0, packet.getLength());
+
+                if ("end".equals(received)) {
+                    break;
+                }
+
+            System.out.println("received:" + received);
             if(!HeaderManager.validateHeader(received, gameLogic)) continue;
             
             String message = HeaderManager.getMessage(received);
+            System.out.println("handleMessage called with message" + message);
             handleMessage(message);
         }
         socket.leaveGroup(group);
@@ -51,11 +56,12 @@ public class MulticastReceiver extends Thread {
             System.out.println("EXCEPTION in MulticastReceiver" + e);
         }
     }
-    
+
     private void handleMessage(String received) throws IOException {
         
         String[] parts = received.split(",");
         
+        /*
         if (received.contains(".")) { // Create a better check later
             // THIS IS PROBABLY AN IP_ADDRESS
             int pos = this.findPlayerPosition(parts);
@@ -78,7 +84,9 @@ public class MulticastReceiver extends Thread {
             gameLogic.setPinger(pinger);
             pinger.start();
 
-        } else if (received.length() == 10 && received.split(",").length == 1) {
+        }
+*/
+        if (received.length() == 10 && received.split(",").length == 1) {
             // THIS IS PROBABLY A USERHASH, should be ignored
             Pinger ping = this.gameLogic.getPinger();
             if(ping == null) return;
@@ -123,5 +131,7 @@ public class MulticastReceiver extends Thread {
         }
         return pos;
     }
-    
 }
+
+
+//CHECK!!!
