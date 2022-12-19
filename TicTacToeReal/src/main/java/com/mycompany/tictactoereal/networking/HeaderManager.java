@@ -13,12 +13,13 @@ import java.util.Arrays;
  */
 public class HeaderManager {
     
-    private static final int FIELDCOUNT = 3;
+    private static final int FIELDCOUNT = 4;
     
     /* IMPORTANT: in the header structure you should always make sure that the following positional rules are followed:
         
     0: sender
     1: game userlist
+    2: message type
     last: message
     
     */
@@ -46,7 +47,7 @@ public class HeaderManager {
         ; 
     }
     
-    public static String addHeader(String message, String usrHash, String[] userList) {
+    public static String addHeader(String message, String messageType, String usrHash, String[] userList) {
         if(userList.length == 0) return usrHash + ";" + usrHash + ";" + message;
         String stringList = userList[0];
         for (int i = 1; i < userList.length; i++) {
@@ -56,22 +57,33 @@ public class HeaderManager {
         return usrHash + ";" + stringList + ";" + message;
     }
     
-    public static String addHeader(String message, GameLogic gameLogic) {
+    public static String addHeader(String message, String messageType, GameLogic gameLogic) {
         String usrHash = gameLogic.getUserHash();
         String[] userList = gameLogic.getPlayerArray();
         
-        return addHeader(message, usrHash, userList);
+        return addHeader(message, messageType, usrHash, userList);
     }
     
-    public static String addHeaderWithMovecount(String message, GameLogic gameLogic) {
+    public static String addHeaderWithMovecount(String message, String messageType, GameLogic gameLogic) {
         String newMessage = message + "," + gameLogic.getSymbolInTurn() + "," + gameLogic.getTurnNumber();
-        return  HeaderManager.addHeader(newMessage, gameLogic);
+        return  HeaderManager.addHeader(newMessage, messageType, gameLogic);
     }
     
     public static String getMessage(String fullMessage) {
         String[] strArr = fullMessage.split(";");
         if(strArr.length < FIELDCOUNT) return strArr[0]; //Due to server lacking header
         return strArr[FIELDCOUNT-1];
+    }
+    
+    public static String getMessageType(String fullMessage) {
+        String[] strArr = fullMessage.split(";");
+        if(strArr.length < FIELDCOUNT) return strArr[0]; //Due to server lacking header
+        return strArr[2];
+    }
+    
+    public static String getMessageSender(String fullMessage) {
+        String[] strArr = fullMessage.split(";");
+        return strArr[0];
     }
     
     public static String[] getUserList(String fullMessage) {
