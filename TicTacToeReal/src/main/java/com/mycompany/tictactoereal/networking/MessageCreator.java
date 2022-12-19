@@ -8,7 +8,7 @@ public class MessageCreator {
 
     public static String createPlaceTileMessage(int x, int y, int tileId, GameLogic gameLogic) {
         String message = x + "," + y + "," + tileId;
-        return HeaderManager.addHeaderWithMovecount(message, gameLogic);
+        return HeaderManager.addHeaderWithMovecount(message,"placetile", gameLogic);
     }
 
     public static String createSendGameStateMessage(ArrayList<Move> moves, GameLogic gameLogic) {
@@ -24,11 +24,11 @@ public class MessageCreator {
             message += ",";
             message += moves.get(i).getTurnNumber();
         }
-        return HeaderManager.addHeader(message, gameLogic);
+        return HeaderManager.addHeader(message,"gamestate", gameLogic);
     }
     
     public static String createPing(GameLogic gameLogic) {
-        return HeaderManager.addHeader(gameLogic.getUserHash(), gameLogic);
+        return HeaderManager.addHeader(gameLogic.getUserHash(),"ping", gameLogic);
     }
 
     //every message has information who made the last move and how many moves have been made in the game
